@@ -1,0 +1,81 @@
+---
+
+stun:
+  server:
+    local_interfaces: 
+      - Ethernet1
+router_path_selection:
+  peer_dynamic_source: 'stun'
+  path_groups:
+    - name: TRANSIT1
+      ipsec_profile: AUTOVPN_TUNNEL
+      local_interfaces:
+        - name: Ethernet1
+  load_balance_policies:
+    - name: dps-lb-policy-default
+      path_groups:
+        - name: TRANSIT1
+  # policies:
+  #   - name: dps-policy-default
+  #     default_match:
+  #       load_balance: dps-lb-policy-default
+  policies:
+    - name: dps-policy-default
+      rules:
+      - id: 10
+        application_profile: APP-PROFILE-CONTROL-PLANE
+        load_balance: dps-lb-policy-default
+  vrfs:
+    - name: default
+      path_selection_policy: dps-policy-default
+    - name: SITE_TRAFFIC
+      path_selection_policy: dps-policy-default
+
+application_traffic_recognition:
+  application_profiles:
+  - name: APP-PROFILE-CONTROL-PLANE
+    applications:
+    - name: APP-CONTROL-PLANE
+  applications:
+    ipv4_applications:
+    - name: APP-CONTROL-PLANE
+      src_prefix_set_name: PFX-LOCAL-VTEP-IP
+  field_sets:
+    ipv4_prefixes:
+    - name: PFX-LOCAL-VTEP-IP
+      prefix_values:
+      - 10.255.1.1/32
+      - 10.255.1.2/32
+      
+# router_path_selection:
+#   tcp_mss_ceiling:
+#     ipv4_segment_size: auto
+#   path_groups:
+#   - name: TRANSIT1
+#     id: 101
+#     local_interfaces:
+#     - name: Ethernet1
+#     ipsec_profile: CP_AUTOVPN_TUNNEL
+#   - name: TRANSIT2
+#     id: 102
+#   peer_dynamic_source: stun
+#   load_balance_policies:
+#   - name: LB-DEFAULT-POLICY-CONTROL-PLANE
+#     path_groups:
+#     - name: TRANSIT1
+#     - name: TRANSIT2
+#   - name: LB-DEFAULT-POLICY-DEFAULT
+#     path_groups:
+#     - name: TRANSIT1
+#     - name: TRANSIT2
+#   policies:
+#   - name: DEFAULT-POLICY-WITH-CP
+#     rules:
+#     - id: 10
+#       application_profile: APP-PROFILE-CONTROL-PLANE
+#       load_balance: LB-DEFAULT-POLICY-CONTROL-PLANE
+#     default_match:
+#       load_balance: LB-DEFAULT-POLICY-DEFAULT
+#   vrfs:
+#   - name: default
+#     path_selection_policy: DEFAULT-POLICY-WITH-CP

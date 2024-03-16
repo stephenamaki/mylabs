@@ -1,0 +1,17 @@
+---
+all:
+  children:
+    FABRIC:
+      children:
+        AUTOVPN:
+          children:
+            MGMT_DEVICES:
+              hosts:
+                gwy-rtr:
+                  ansible_host: 192.168.224.104
+                switch-mgmt:
+                  ansible_host: 172.16.1.250
+
+        NETWORK_SERVICES:
+          children:
+            AUTOVPN_EDGES:

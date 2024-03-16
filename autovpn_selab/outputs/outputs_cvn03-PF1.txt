@@ -1,0 +1,239 @@
+cvn03-PF1#
+cvn03-PF1#show stun server bindings
+Current System Time: Wed Mar 13 14:27:25 2024
+          Transaction ID Public Address        Attributes Timeout 
+------------------------ --------------------- ---------- --------
+00000001c0a80a0100000000 172.202.1.3:4500               3 0:07:43 
+00000001c0a80c0100000000 172.202.1.4:4500               3 0:08:24 
+00000001c0a80d0100000000 172.202.1.5:4500               3 0:09:26 
+
+cvn03-PF1#show stun client translations
+Current System Time: Wed Mar 13 14:28:35 2024
+Agent           Transaction ID Source Address        Public Address        Last        
+                                                                           Refreshed   
+----- ------------------------ --------------------- --------------------- ------------
+
+cvn03-PF1#show ip security connection
+show bgp summary 
+Tunnel     Source           Dest             Status       Uptime     Input            Output           Rekey Time                       
+path4      172.22.1.6       172.202.1.5      Established  4 days     123463948 bytes  323925838 bytes  19 minutes  
+                                                                     853703 pkts      2725836 pkts                 
+path5      172.22.1.6       172.202.1.3      Established  4 days     123458948 bytes  323918116 bytes  33 minutes  
+                                                                     853661 pkts      2725628 pkts                 
+path6      172.22.1.6       172.202.1.4      Established  4 days     123462388 bytes  323921406 bytes  1 minute    
+                                                                     853689 pkts      2725720 pkts                 
+cvn03-PF1#
+cvn03-PF1#show bgp summary 
+show bgp evpn route-type ip-prefix ipv4
+
+show bgp path-selection summary 
+BGP summary information for VRF default
+Router identifier 10.254.11.1, local AS number 65014
+Neighbor              AS Session State AFI/SAFI                AFI/SAFI State   NLRI Rcd   NLRI Acc
+------------ ----------- ------------- ----------------------- -------------- ---------- ----------
+192.168.10.1       65014 Established   IPv4 Dps                Negotiated              2          2
+192.168.10.1       65014 Established   L2VPN EVPN              Negotiated              2          2
+192.168.12.1       65014 Established   IPv4 Dps                Negotiated              2          2
+192.168.12.1       65014 Established   L2VPN EVPN              Negotiated              2          2
+192.168.13.1       65014 Established   IPv4 Dps                Negotiated              2          2
+192.168.13.1       65014 Established   L2VPN EVPN              Negotiated              2          2show bgp path-selection 
+
+show path-selection paths
+cvn03-PF1#show bgp evpn sumary
+% Invalid input
+cvn03-PF1#show bgp evpn route-type ip-prefix ipv4
+
+show adaptive-virtual-topology application-profile vrf green 
+show adaptive-virtual-topology path vrf green
+BGP routing table information for VRF default
+Router identifier 10.254.11.1, local AS number 65014
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending best path selection
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.254.10.1:101 ip-prefix 10.254.10.1/32
+                                 192.168.10.1          -       100     0       i
+ * >      RD: 10.254.11.1:101 ip-prefix 10.254.11.1/32
+                                 -                     -       -       0       i
+ * >      RD: 10.254.12.1:101 ip-prefix 10.254.12.1/32
+                                 192.168.12.1          -       100     0       i
+ * >      RD: 10.254.13.1:101 ip-prefix 10.254.13.1/32
+                                 192.168.13.1          -       100     0       i
+ * >      RD: 10.254.10.1:102 ip-prefix 172.22.2.0/24
+                                 192.168.10.1          -       100     0       i
+ * >      RD: 10.254.12.1:102 ip-prefix 172.22.3.0/24
+                                 192.168.12.1          -       100     0       i
+ * >      RD: 10.254.13.1:102 ip-prefix 172.22.4.0/24
+                                 192.168.13.1          -       100     0       i
+cvn03-PF1#
+cvn03-PF1#show bgp path-selection summary 
+BGP summary information for VRF default
+Router identifier 10.254.11.1, local AS number 65014
+Neighbor Status Codes: m - Under maintenance
+  Neighbor     V AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
+  192.168.10.1 4 65014           7928      7947    0    0    4d16h Estab   2      2
+  192.168.12.1 4 65014           7939      7936    0    0    4d16h Estab   2      2
+  192.168.13.1 4 65014           7939      7939    0    0    4d16h Estab   2      2
+cvn03-PF1#show bgp path-selection 
+
+BGP routing table information for VRF default
+Router identifier 10.254.11.1, local AS number 65014
+Route status code: * - valid, S - Stale, q - Queued for advertisement
+
+    NLRI      VTEP            Endpoint        Path Group    WAN ID  UDP Port
+ *  ipv4Dps   192.168.10.1/32 172.202.1.3     internet           1      4500
+ *  ipv4Dps   192.168.12.1/32 172.202.1.4     internet           1      4500
+ *  ipv4Dps   192.168.13.1/32 172.202.1.5     internet           1      4500
+ *  ipv4Ipsec 192.168.10.1/32 -               -                  -         -
+ *  ipv4Ipsec 192.168.12.1/32 -               -                  -         -
+ *  ipv4Ipsec 192.168.13.1/32 -               -                  -         -
+show ip route interface Dp1
+cvn03-PF1#show path-selection paths
+sh ip route vrf all | no 
+Peer         Path Group Source     Destination Path Name Type    TC Route State       Telemetry State           MTU 
+------------ ---------- ---------- ----------- --------- ------- -- ----------------- ------------------------- ----
+192.168.10.1 internet   172.22.1.6 172.202.1.3 path5     dynamic 0  IPsec established active (4 days, 16:14:47) 1414
+192.168.12.1 internet   172.22.1.6 172.202.1.4 path6     dynamic 0  IPsec established active (4 days, 16:15:06) 1414
+192.168.13.1 internet   172.22.1.6 172.202.1.5 path4     dynamic 0  IPsec established active (4 days, 16:15:11) 1414
+
+cvn03-PF1#
+cvn03-PF1#show adaptive-virtual-topology application-profile vrf green 
+% Adaptive virtual topology is not configured
+cvn03-PF1#show adaptive-virtual-topology path vrf green
+% Adaptive virtual topology is not configured
+cvn03-PF1#show adaptive-virtual-topology flow vrf green
+% Adaptive virtual topology is not configured
+cvn03-PF1#
+cvn03-PF1#show ip route interface Dp1
+show monitor telemetry path counters
+
+VRF: default
+Codes: C - connected, S - static, K - kernel, 
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+ S        192.168.10.1/32 is directly connected, Dps1
+ C        192.168.11.1/32 is directly connected, Dps1
+ S        192.168.12.1/32 is directly connected, Dps1
+ S        192.168.13.1/32 is directly connected, Dps1
+
+cvn03-PF1#sh ip route vrf all | no 
+show flow telemetry ipfix counters
+
+VRF: default
+Codes: C - connected, S - static, K - kernel, 
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+Gateway of last resort is not set
+
+ B I      10.254.10.1/32 is directly connected, Null0
+ C        10.254.11.1/32 is directly connected, Loopback0
+ B I      10.254.12.1/32 is directly connected, Null0
+ B I      10.254.13.1/32 is directly connected, Null0
+ C        172.22.1.0/24 is directly connected, Ethernet1
+ S        172.202.1.0/24 [1/0] via 172.22.1.1, Ethernet1
+ S        192.168.10.1/32 is directly connected, Dps1
+ C        192.168.11.1/32 is directly connected, Dps1
+ S        192.168.12.1/32 is directly connected, Dps1
+ S        192.168.13.1/32 is directly connected, Dps1
+
+
+VRF: MGMT
+Codes: C - connected, S - static, K - kernel, 
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+Gateway of last resort:
+ S        0.0.0.0/0 [1/0] via 10.90.245.1, Management1
+
+ C        10.90.244.0/23 is directly connected, Management1
+
+! IP routing not enabled
+
+VRF: prod
+Codes: C - connected, S - static, K - kernel, 
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+Gateway of last resort is not set
+
+ B I      172.22.2.0/24 is directly connected, Null0
+ B I      172.22.3.0/24 is directly connected, Null0
+ B I      172.22.4.0/24 is directly connected, Null0
+
+cvn03-PF1#
+cvn03-PF1#show monitor telemetry path characteristics
+show flow telemetry ipfix flow-table
+Peer         Path Group Path Name TC Tx State                  Latency(ms) Jitter(ms) Throughput(Mbps) Loss Rate(%) MTU 
+------------ ---------- --------- -- ------------------------- ----------- ---------- ---------------- ------------ ----
+192.168.10.1 internet   path5     0  active (4 days, 16:14:47) 0.068       0.3        0.000416         0.0          1414
+192.168.12.1 internet   path6     0  active (4 days, 16:15:06) 0.07        0.018      0.000416         0.0          1414
+192.168.13.1 internet   path4     0  active (4 days, 16:15:11) 0.065       0.121      0.000416         0.0          1414
+
+cvn03-PF1#show monitor telemetry path counters
+Peer         Path Group Path Name TC In Bytes In Packets In Drops Out Bytes Out Packets Out Drops
+------------ ---------- --------- -- -------- ---------- -------- --------- ----------- ---------
+192.168.10.1 internet   path5     0  1679524  15862      0        41535231  468688      0        
+192.168.12.1 internet   path6     0  1680033  15865      0        41539174  468735      0        
+192.168.13.1 internet   path4     0  1680213  15867      0        41541103  468756      0        
+
+cvn03-PF1#show flow telemetry ipfix counters
+
+show path-selection load-balance counters
+
+cvn03-PF1#show flow telemetry ipfix flow-table
+cvn03-PF1#
+cvn03-PF1#show path-selection load-balance counters
+App Profile               Vrf     Peer         Path Group Path  Flows Throughput(Mbps)
+------------------------- ------- ------------ ---------- ----- ----- ----------------
+default_app               default 192.168.10.1 internet   path5 0     0.0             
+default_app               default 192.168.13.1 internet   path4 0     0.0             
+default_app               default 192.168.12.1 internet   path6 0     0.0             
+default_app               prod    192.168.12.1 internet   path6 0     0.0             
+APP-PROFILE-CONTROL-PLANE default 192.168.10.1 internet   path5 2     0.000416        
+APP-PROFILE-CONTROL-PLANE default 192.168.12.1 internet   path6 2     0.000416        
+default_app               prod    192.168.10.1 internet   path5 0     0.0             
+default_app               prod    192.168.13.1 internet   path4 0     0.0             
+APP-PROFILE-CONTROL-PLANE default 192.168.13.1 internet   path4 2     0.000416        
+
+cvn03-PF1#
+cvn03-PF1#

@@ -1,0 +1,56 @@
+---
+# inventory.yml
+all:
+  children:
+    FABRIC:
+      hosts:
+        dc1-spine1:
+          ansible_host: 172.16.1.11
+        dc1-spine2:
+          ansible_host: 172.16.1.12
+        dc1-leaf1a:
+          ansible_host: 172.16.1.101
+        dc1-leaf1b:
+          ansible_host: 172.16.1.102
+        dc1-leaf2a:
+          ansible_host: 172.16.1.103
+        dc1-leaf2b:
+          ansible_host: 172.16.1.104
+        dc1-leaf3a:
+          ansible_host: 172.16.1.105
+        dc1-leaf3b:
+          ansible_host: 172.16.1.106
+        dc1-leaf1c:
+          ansible_host: 172.16.1.151
+        dc1-leaf2c:
+          ansible_host: 172.16.1.152
+        client1:
+          ansible_host: 172.16.1.241
+        client2:
+          ansible_host: 172.16.1.242
+        client3:
+          ansible_host: 172.16.1.243
+        client4:
+          ansible_host: 172.16.1.244
+        client5:
+          ansible_host: 172.16.1.245
+        dc2-spine1:
+          ansible_host: 172.16.1.21
+        dc2-spine2:
+          ansible_host: 172.16.1.22
+        dc2-leaf1a:
+          ansible_host: 172.16.1.111
+        dc2-leaf1b:
+          ansible_host: 172.16.1.112
+        dc2-leaf2a:
+          ansible_host: 172.16.1.113
+        dc2-leaf2b:
+          ansible_host: 172.16.1.114
+        dc2-leaf3a:
+          ansible_host: 172.16.1.115
+        dc2-leaf3b:
+          ansible_host: 172.16.1.116
+        dc2-leaf1c:
+          ansible_host: 172.16.1.161
+        dc2-leaf2c:
+          ansible_host: 172.16.1.162

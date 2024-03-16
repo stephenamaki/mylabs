@@ -1,0 +1,53 @@
+management_interfaces:
+  - name: Management1
+    description: oob_management
+    shutdown: false
+    vrf: MGMT
+    ip_address: {{ mgmt_ip_address }}
+    gateway: 172.16.1.1
+    type: oob
+ethernet_interfaces:
+  - name: Ethernet1
+    description: {{ eth1_description }}
+    type: routed
+    shutdown: false
+    ip_address: {{ eth1_ip_address }}
+  - name: Ethernet2
+    description: {{ eth2_description }}
+    type: routed
+    shutdown: false
+    ip_address: {{ eth2_ip_address }}
+loopback_interfaces:
+  - name: Loopback0
+    description: Testing Loopback
+    shutdown: false
+    ip_address: {{ lo0_ip_address }}/32
+router_bgp:
+  as: '{{ bgp_asn }}'
+  router_id: {{ lo0_ip_address }}
+  maximum_paths:
+    paths: 16
+    ecmp: 16
+  bgp:
+    default:
+      ipv4_unicast: false
+  peer_groups:
+    - name: PATHFINDERS
+      bfd: true
+      password: {{ bgp_password }}
+      send_community: 'all'
+      maximum_routes: 12000
+      remote_as: '65000'
+  neighbors:
+    - ip_address: {{ autovpn1_ip_address }}
+      peer_group: PATHFINDERS
+      description: {{ autovpn1_description }}
+    - ip_address: {{ autovpn2_ip_address }}
+      peer_group: PATHFINDERS
+      description: {{ autovpn2_description }}
+  redistribute_routes:
+    - source_protocol: connected
+  address_family_ipv4:
+    peer_groups:
+      - name: PATHFINDERS
+        activate: true

@@ -1,0 +1,23 @@
+---
+- name: Resetting device to initial configs with only management access
+  hosts: FABRIC
+  tasks:
+    # - name: Generate EOS configuration Snapshots
+    #   tags: [snapshot]
+    #   import_role:
+    #     name: arista.avd.eos_snapshot
+
+    - name: generate device intended config and documention
+      tags: [build]
+      import_role:
+        name: arista.avd.eos_cli_config_gen
+
+    - name: deploy configuration to device
+      tags: [deploy]
+      import_role:
+        name: arista.avd.eos_config_deploy_eapi
+
+    # - name: Validate states on EOS devices
+    #   tags: [verify, never]
+    #   import_role:
+    #     name: arista.avd.eos_validate_state

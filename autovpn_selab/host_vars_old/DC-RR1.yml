@@ -1,0 +1,123 @@
+management_interfaces:
+  - name: Management1
+    description: oob_management
+    shutdown: false
+    vrf: MGMT
+    ip_address: 172.16.1.11/24
+    gateway: 172.16.1.1
+    type: oob
+ethernet_interfaces:
+  # - name: Ethernet1
+  #   description: TRANSIT1
+  #   type: routed
+  #   shutdown: false
+  #   ip_address: 10.255.255.1/24
+  - name: Ethernet2
+    description: SITE_TRAFFIC
+    type: routed
+    vrf: SITE_TRAFFIC
+    shutdown: false
+    ip_address: 10.240.241.1/24
+# loopback_interfaces:
+#   - name: Loopback0
+#     description: Transit_Loopback
+#     shutdown: false
+#     ip_address: 10.255.0.1/32
+router_bgp:
+  # as: '65000'
+  # router_id: 10.255.0.1
+  maximum_paths:
+    paths: 16
+    ecmp: 16
+  # bgp:
+  #   default:
+  #     ipv4_unicast: false
+  # listen_ranges:
+  #   - prefix: 10.255.0.0/24
+  #     peer_group: AUTOVPN_EDGES
+  #     remote_as: 65000
+  peer_groups:
+    # - name: AUTOVPN_EDGES
+    #   description: Routing_to_Edge_Routers
+    #   remote_as: 65000
+    #   update_source: 'Loopback0'
+    #   route_reflector_client: true
+    #   bfd: true
+    #   password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+    #   send_community: 'extended'
+    #   maximum_routes: 12000
+    - name: TRANSIT_ROUTING
+      description: Routing_to_TRANSIT2
+      bfd: true
+      password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+      send_community: 'all'
+      maximum_routes: 12000
+  neighbors:
+    - ip_address: 10.255.255.241
+      peer_group: TRANSIT_ROUTING
+      remote_as: 65100
+      description: TRANSIT1
+  address_family_ipv4:
+    peer_groups:
+      - name: TRANSIT_ROUTING
+        activate: true
+      - name: AUTOVPN_EDGES
+        activate: false
+  address_family_evpn:
+    peer_groups:
+      - name: AUTOVPN_EDGES
+        activate: true
+  address_family_path_selection:
+    bgp:
+      additional_paths:
+        receive: true
+        send:
+          any: true 
+    peer_groups:
+      - name: AUTOVPN_EDGES
+        activate: true
+        additional_paths:
+          receive: true
+          send:
+            any: true
+  vrfs:
+    - name: SITE_TRAFFIC
+      rd: 10.255.0.1:1
+      route_targets:
+        import:
+          - address_family: evpn
+            route_targets:
+              - '65000:1'
+        export:
+          - address_family: evpn
+            route_targets:
+              - '65000:1'
+      redistribute_routes:
+        - source_protocol: connected
+        - source_protocol: static
+      neighbors:
+        - ip_address: 10.240.241.251
+          remote_as: 65101
+          password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+          bfd: true
+      address_family_ipv4:
+        neighbors:
+          - ip_address: 10.240.241.251
+            activate: true
+# ip_security:
+#   ike_policies:
+#     - name: IKE_AUTOVPN
+#       local_id: 10.255.0.1
+#   sa_policies:
+#     - name: SA_AUTOVPN
+#   profiles:
+#     - name: AUTOVPN_TUNNEL
+#       ike_policy: IKE_AUTOVPN
+#       sa_policy: SA_AUTOVPN
+#       connection: 'start'
+#       shared_key: 141600021F102B
+#       dpd:
+#         interval: 10
+#         time: 50
+#         action: 'clear'
+#       mode: 'transport'

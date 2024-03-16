@@ -1,0 +1,76 @@
+---
+
+# Edge nodes configuration
+
+# node_type_keys:
+#   - key: wan_router
+#     type: wan_router
+#     connected_endpoints: false
+#     mlag_support: false
+#     underlay_router: false
+#     uplink_type: port-channel
+
+type: wan_router
+# type: wan_edge
+
+wan_router:  # dynamic_key: node_type
+  defaults:
+    id: 1
+    loopback_ipv4_offset: -1
+    cv_pathfinder_region: Global
+    filter:
+      always_include_vrfs_in_tenants: [cvnselab03]
+  nodes:
+    - name: S-1A
+      cv_pathfinder_site: S-1A
+      loopback_ipv4_pool: 10.254.10.1/32
+      vtep_loopback_ipv4_pool: 192.168.10.1/32
+      l3_interfaces:
+        - name: Ethernet1
+          ip_address: 172.22.1.3/24
+          wan_carrier: internet
+          peer_ip: 172.22.1.1
+          static_routes:
+            - prefix: 172.202.1.0/24
+    - name: S-2A
+      cv_pathfinder_site: S-2A
+      loopback_ipv4_pool: 10.254.12.1/32
+      vtep_loopback_ipv4_pool: 192.168.12.1/32
+      l3_interfaces:
+        - name: Ethernet1
+          ip_address: 172.22.1.4/24
+          wan_carrier: internet
+          peer_ip: 172.22.1.1
+          static_routes:
+            - prefix: 172.202.1.0/24
+    - name: S-2B
+      cv_pathfinder_site: S-2B
+      loopback_ipv4_pool: 10.254.13.1/32
+      vtep_loopback_ipv4_pool: 192.168.13.1/32
+      l3_interfaces:
+        - name: Ethernet1
+          ip_address: 172.22.1.5/24
+          wan_carrier: internet
+          peer_ip: 172.22.1.1
+          static_routes:
+            - prefix: 172.202.1.0/24
+
+bgp_as: 65000
+
+wan_ipsec_profiles:
+  control_plane:
+    shared_key: 0110100A480E0A0E231D1E
+  data_plane:
+    shared_key: 0110100A480E0A0E231D1E
+
+bgp_peer_groups:
+  wan_rr_overlay_peers:
+    password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+    bfd: true
+
+bgp_peer_groups:
+  wan_rr_overlay_peers:
+    name: PATHFINDERS
+    password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+    bfd: true
+    structured_config:

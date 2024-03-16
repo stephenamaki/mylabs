@@ -1,0 +1,13 @@
+hostname: CORE-DC
+mgmt_ip_address: 172.16.1.243/24
+eth1_ip_address: 10.240.241.251/24
+eth1_description: PATHFINDERS
+eth2_ip_address: 10.240.242.251/24
+eth2_description: PATHFINDERS
+lo0_ip_address: 10.0.0.243
+bgp_asn: '65101'
+autovpn1_ip_address: 10.240.241.1
+autovpn1_description: DC-RR1
+autovpn2_ip_address: 10.240.242.1
+autovpn2_description: DC-RR2
+bgp_password: $1c$G8BQN0ezkiJOX2cuAYpsEA==

@@ -1,0 +1,157 @@
+management_interfaces:
+  - name: Management1
+    description: oob_management
+    shutdown: false
+    vrf: MGMT
+    ip_address: 172.16.1.241/24
+    gateway: 172.16.1.1
+    type: oob
+ethernet_interfaces:
+  - name: Ethernet1
+    description: S-1A_TRANSIT1
+    type: routed
+    shutdown: false
+    ip_address: 10.251.251.1/24
+    dhcp_server_ipv4: true
+  - name: Ethernet2
+    description: S-2A_TRANSIT1
+    type: routed
+    shutdown: false
+    ip_address: 10.251.252.1/24
+    dhcp_server_ipv4: true 
+  - name: Ethernet3
+    description: S-2B_TRANSIT1
+    type: routed
+    shutdown: false
+    ip_address: 10.251.253.1/24
+    dhcp_server_ipv4: true 
+  - name: Ethernet4
+    description: S-3A_TRANSIT1
+    type: routed
+    shutdown: false
+    ip_address: 10.251.254.1/24
+    dhcp_server_ipv4: true 
+  - name: Ethernet5
+    description: DC-RR1_TRANSIT1
+    type: switched
+    shutdown: false
+    mode: access 
+    vlans: 255
+    spanning_tree_portfast: edge
+  - name: Ethernet7
+    description: Portchannel_Trunk_TO_TRANSIT2_Ethernet7
+    type: port-channel-member
+    shutdown: false
+    channel_group:
+      id: 1
+      mode: active
+  - name: Ethernet8
+    description: Portchannel_Trunk_TO_TRANSIT2_Ethernet8
+    type: port-channel-member
+    shutdown: false
+    channel_group:
+      id: 1
+      mode: active
+port_channel_interfaces:
+  - name: Port-Channel1
+    description: Portchannel_Trunk_TO_TRANSIT2
+    type: switched
+    shutdown: false
+    mode: trunk
+    vlans: all
+loopback_interfaces:
+  - name: Loopback0
+    description: Transit_Loopback
+    shutdown: false
+    ip_address: 10.255.0.11/32
+vlan_interfaces:
+  - name: Vlan255
+    description: Transit_VLAN
+    shutdown: false 
+    ip_address: 10.255.255.241/24
+router_bgp:
+  as: '65100'
+  router_id: 10.255.0.11
+  maximum_paths:
+    paths: 16
+    ecmp: 16
+  bgp:
+    default:
+      ipv4_unicast: false
+  peer_groups:
+    - name: TRANSIT_ROUTING
+      description: Routing_to_TRANSIT2
+      bfd: true
+      password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+      send_community: 'all'
+      maximum_routes: 12000
+  neighbors:
+    - ip_address: 10.255.255.1
+      peer_group: TRANSIT_ROUTING
+      remote_as: '65000'
+      description: DC-RR1
+    - ip_address: 10.255.255.242
+      peer_group: TRANSIT_ROUTING
+      remote_as: '65200'
+      description: TRANSIT2
+  redistribute_routes:
+    - source_protocol: connected
+      route_map: RM-CONN-2-BGP
+  address_family_ipv4:
+    peer_groups:
+      - name: TRANSIT_ROUTING
+        activate: true
+
+dhcp_servers:
+  - disabled: false
+    vrf: default
+    dns_domain_name_ipv4: arista.com
+    subnets:
+      - subnet: 10.251.251.0/24
+        default_gateway: 10.251.251.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: 10.251.251.2
+            end: 10.251.251.255
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0
+      - subnet: 10.251.252.0/24
+        default_gateway: 10.251.252.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: 10.251.252.2
+            end: 10.251.252.255
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0
+      - subnet: 10.251.253.0/24
+        default_gateway: 10.251.253.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: 10.251.253.2
+            end: 10.251.253.255
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0
+      - subnet: 10.251.254.0/24
+        default_gateway: 10.251.254.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: 10.251.254.2
+            end: 10.251.254.255
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0

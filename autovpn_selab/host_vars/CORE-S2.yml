@@ -1,0 +1,53 @@
+management_interfaces:
+  - name: Management1
+    description: oob_management
+    shutdown: false
+    vrf: MGMT
+    ip_address: 172.16.1.245/24
+    gateway: 172.16.1.1
+    type: oob
+ethernet_interfaces:
+  - name: Ethernet1
+    description: AUTOVPN_EDGE
+    type: routed
+    shutdown: false
+    ip_address: 10.250.252.251/24
+  - name: Ethernet2
+    description: AUTOVPN_EDGE
+    type: routed
+    shutdown: false
+    ip_address: 10.250.253.251/24
+loopback_interfaces:
+  - name: Loopback0
+    description: Testing Loopback
+    shutdown: false
+    ip_address: 10.0.0.245/32
+router_bgp:
+  as: '65103'
+  router_id: 10.0.0.245
+  maximum_paths:
+    paths: 16
+    ecmp: 16
+  bgp:
+    default:
+      ipv4_unicast: false
+  peer_groups:
+    - name: AUTOVPN_EDGE
+      bfd: true
+      password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+      send_community: 'all'
+      maximum_routes: 12000
+      remote_as: 65000
+  neighbors:
+    - ip_address: 10.250.252.1
+      peer_group: AUTOVPN_EDGE
+      description: S-2A
+    - ip_address: 10.250.253.1
+      peer_group: AUTOVPN_EDGE
+      description: S-2B
+  redistribute_routes:
+    - source_protocol: connected
+  address_family_ipv4:
+    peer_groups:
+      - name: AUTOVPN_EDGE
+        activate: true

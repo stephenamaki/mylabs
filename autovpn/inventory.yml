@@ -1,0 +1,55 @@
+---
+# all:
+#   hosts:
+#     cloudvision:
+#       ansible_host: "www.cv-staging.corp.arista.io"
+#       ansible_password:  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJkaWQiOjUwNzg3ODUsImRzbiI6ImFuc2libGUiLCJkc3QiOiJhY2NvdW50IiwiZXhwIjoxNzQxNzk2ODUyLCJpYXQiOjE3MTAyNjA4NjMsIm9naSI6NDIxMTk0MCwib2duIjoic2FtYWtpLWxhYiIsInNpZCI6IjhmMzA3ZmJkZmRkYzMwZWI4ZmFhZjM1ODZkOTUxYjM2ODFhOTRjOTIxOTdkZDBlNWM0Mzk3N2RjMTcyYWFiYmMtUzZ5alpNTmdiVFhaYlBTQ0hKdFJ1NldRaXN3c05mdlBJWGJCVjdUWiJ9.M5d0k6JQiDNoZ4k41Io1p16yKZp032446QeazlbyAlsIin9i8LMcRpT4sSph2nBpuL1ulXLiQT0jmMtI0QGHiQ"
+all:
+  children:
+    CLOUDVISION:
+      hosts:
+        cvp:
+          ansible_host: "www.cv-staging.corp.arista.io"
+          ansible_password:  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJkaWQiOjUwNzg3ODUsImRzbiI6ImFuc2libGUiLCJkc3QiOiJhY2NvdW50IiwiZXhwIjoxNzQxNzk2ODUyLCJpYXQiOjE3MTAyNjA4NjMsIm9naSI6NDIxMTk0MCwib2duIjoic2FtYWtpLWxhYiIsInNpZCI6IjhmMzA3ZmJkZmRkYzMwZWI4ZmFhZjM1ODZkOTUxYjM2ODFhOTRjOTIxOTdkZDBlNWM0Mzk3N2RjMTcyYWFiYmMtUzZ5alpNTmdiVFhaYlBTQ0hKdFJ1NldRaXN3c05mdlBJWGJCVjdUWiJ9.M5d0k6JQiDNoZ4k41Io1p16yKZp032446QeazlbyAlsIin9i8LMcRpT4sSph2nBpuL1ulXLiQT0jmMtI0QGHiQ"
+    FABRIC:
+      children:
+        AUTOVPN:
+          children:
+            PATHFINDERS:
+              hosts:
+                DC-RR1:
+                  ansible_host: 172.16.1.11
+                DC-RR2:
+                  ansible_host: 172.16.1.12
+            EDGES_NODES:
+              hosts:
+                S-1A:
+                  ansible_host: 172.16.1.101
+                S-2A:
+                  ansible_host: 172.16.1.102
+                S-2B:
+                  ansible_host: 172.16.1.103
+                S-3A:
+                  ansible_host: 172.16.1.104
+        TRANSIT:
+          hosts:
+            TRANSIT1:
+              ansible_host: 172.16.1.241
+            TRANSIT2:
+              ansible_host: 172.16.1.242
+        SITE_TRAFFIC:
+          children:
+            HQ_TRAFFIC:
+              hosts:
+                CORE-DC:
+                  ansible_host: 172.16.1.243
+            REMOTE_TRAFFIC:
+              hosts:
+                CORE-S1:
+                  ansible_host: 172.16.1.244
+                CORE-S2:
+                  ansible_host: 172.16.1.245
+
+        NETWORK_SERVICES:
+          children:
+            AUTOVPN_EDGES:

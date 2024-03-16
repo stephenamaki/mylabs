@@ -1,0 +1,8 @@
+hostname: S-2A
+mgmt_ip_address: 172.16.1.102/24
+eth3_ip_address: 10.250.252.1/24
+lo0_ip_address: 10.255.0.102
+site_traffic_rd: 10.255.0.102:1
+site_traffic_neighbor_ip: 10.250.252.251
+site_traffic_neighbor_asn: '65103'
+bgp_password: $1c$G8BQN0ezkiJOX2cuAYpsEA==

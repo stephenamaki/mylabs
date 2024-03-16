@@ -1,0 +1,26 @@
+---
+vlans:
+  - id: 255
+    name: Transit_VLAN
+prefix_lists:
+  - name: TRANSIT_LOOPBACKS
+    sequence_numbers:
+      - sequence: 10
+        action: "permit 10.255.0.0/27 eq 32"
+  - name: SITE-CONNECTED-ROUTES
+    sequence_numbers:
+      - sequence: 10
+        action: "permit 10.251.0.0/16 le 32"
+      - sequence: 20
+        action: "permit 10.252.0.0/16 le 32"
+route_maps:
+  - name: RM-CONN-2-BGP
+    sequence_numbers:
+      - sequence: 10
+        type: permit 
+        match:
+          - "ip address prefix-list TRANSIT_LOOPBACKS"
+      - sequence: 20
+        type: permit 
+        match:
+          - "ip address prefix-list SITE-CONNECTED-ROUTES"

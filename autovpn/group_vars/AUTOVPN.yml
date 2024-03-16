@@ -1,0 +1,20 @@
+---
+dps_interfaces:
+  - name: 'Dps1'
+    shutdown: false
+vxlan_interface:
+  Vxlan1:
+    description: VTEP_Termination
+    vxlan:
+      source_interface: Loopback0
+      udp_port: 4789
+      vrfs:
+        - name: SITE_TRAFFIC
+          vni: 250
+        - name: default
+          vni: 101
+vrfs:
+  - name: MGMT
+    ip_routing: false
+  - name: SITE_TRAFFIC
+    ip_routing: true

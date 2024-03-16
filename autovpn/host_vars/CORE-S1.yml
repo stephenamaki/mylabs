@@ -1,0 +1,9 @@
+hostname: CORE-S1
+mgmt_ip_address: 172.16.1.244/24
+eth1_ip_address: 10.250.251.251/24
+eth1_description: AUTOVPN_EDGE
+lo0_ip_address: 10.0.0.244
+bgp_asn: '65102'
+autovpn1_ip_address: 10.250.251.1
+autovpn1_description: S-1A
+bgp_password: $1c$G8BQN0ezkiJOX2cuAYpsEA==

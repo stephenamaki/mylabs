@@ -1,0 +1,118 @@
+management_interfaces:
+  - name: Management1
+    description: oob_management
+    shutdown: false
+    vrf: MGMT
+    ip_address: 172.16.1.104/24
+    gateway: 172.16.1.1
+    type: oob
+ethernet_interfaces:
+  - name: Ethernet1
+    description: TRANSIT1
+    type: routed
+    shutdown: false
+    ip_address: 'dhcp'
+    dhcp_client_accept_default_route: true
+  - name: Ethernet2
+    description: TRANSIT2
+    type: routed
+    shutdown: false
+    ip_address: 'dhcp'
+    dhcp_client_accept_default_route: true
+  - name: Ethernet3
+    description: SITE_TRAFFIC
+    type: routed
+    vrf: SITE_TRAFFIC
+    shutdown: false
+    ip_address: 10.250.253.1/24
+loopback_interfaces:
+  - name: Loopback0
+    description: Transit_Loopback
+    shutdown: false
+    ip_address: 10.255.0.104/32
+router_bgp:
+  as: '65000'
+  router_id: 10.255.0.104
+  maximum_paths:
+    paths: 16
+    ecmp: 16
+  bgp:
+    default:
+      ipv4_unicast: false
+  peer_groups:
+    - name: PATHFINDERS
+      description: Routing_to_Pathfinders
+      remote_as: 65000
+      update_source: 'Loopback0'
+      bfd: true
+      password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+      send_community: 'extended'
+      maximum_routes: 12000
+  neighbors:
+    - ip_address: 10.255.0.1
+      peer_group: PATHFINDERS
+      description: Headend - DC-RR1
+    - ip_address: 10.255.0.2
+      peer_group: PATHFINDERS
+      description: Headend - DC-RR2
+  address_family_ipv4:
+    peer_groups:
+      - name: PATHFINDERS
+        activate: false
+  address_family_evpn:
+    peer_groups:
+      - name: PATHFINDERS
+        activate: true
+  address_family_path_selection:
+    # bgp:
+    #   additional_paths:
+    #     receive: true
+    #     send:
+    #       any: true 
+    peer_groups:
+      - name: PATHFINDERS
+        activate: true
+        additional_paths:
+          receive: true
+          send:
+            any: true
+  vrfs:
+    - name: SITE_TRAFFIC
+      rd: 10.255.0.104:1
+      route_targets:
+        import:
+          - address_family: evpn
+            route_targets:
+              - '65000:1'
+        export:
+          - address_family: evpn
+            route_targets:
+              - '65000:1'
+      redistribute_routes:
+        - source_protocol: connected
+        - source_protocol: static
+      # neighbors:
+      #   - ip_address: 10.250.253.251
+      #     remote_as: 65103
+      #     # password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+      #     bfd: true
+      #     description: SITE_TRAFFIC
+ip_security:
+  ike_policies:
+    - name: IKE_AUTOVPN
+      local_id: 10.255.0.104
+  sa_policies:
+    - name: SA_AUTOVPN
+  profiles:
+    - name: AUTOVPN_TUNNEL
+      ike_policy: IKE_AUTOVPN
+      sa_policy: SA_AUTOVPN
+      connection: 'start'
+      shared_key: 141600021F102B
+      dpd:
+        interval: 10
+        time: 50
+        action: 'clear'
+      mode: 'transport'
+  key_controller:
+    profile: AUTOVPN_TUNNEL

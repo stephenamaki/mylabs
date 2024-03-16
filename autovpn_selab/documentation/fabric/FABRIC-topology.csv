@@ -1,0 +1,2 @@
+Node Type,Node,Node Interface,Peer Type,Peer Node,Peer Interface,Node Interface Enabled
+wan_interfaces,DC-RR1,Ethernet2,,,,True

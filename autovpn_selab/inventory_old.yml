@@ -1,0 +1,21 @@
+---
+all:
+  hosts:
+    cloudvision:
+      ansible_host: "www.cv-staging.corp.arista.io"
+      ansible_password:  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJkaWQiOjUxMTIxODEsImRzbiI6ImFuc2libGUiLCJkc3QiOiJhY2NvdW50IiwiZXhwIjoxODY4MDU0ODM4LCJpYXQiOjE3MTAyODg0NDQsIm9naSI6NDIxMTk0MCwib2duIjoic2FtYWtpLWxhYiIsInNpZCI6IjRiOWJmYWI5YjM3N2FkOTJjM2U4MzhlMmE1YTg0MjAwZTY5Yzc5ODY1ZjdmNTU4YTI2YjdhYTYzYzUzZDc3N2UtanVQTGEyaFdrUnRIX1l3YWFpTzhXX3FlNXRpYnBUcVJGdmpWbUJuZiJ9.DB05JV71iHrQfMs4y2JhBp16lsMhnron9wYMDzytej8QhpHPOCXUyUhmqu61_AuZgmIdvBXW20SdFKiklZ9bOQ"
+  children:
+    selab03:
+      children:
+        pathfinder_nodes:
+          hosts:
+             cvn03-PF1:
+              ansible_host: 172.16.1.11
+        edge_nodes:
+          hosts:
+            cvn03-EG1:
+              ansible_host: 172.16.1.101
+            cvn03-EG2:
+              ansible_host: 172.16.1.102
+            cvn03-EG3:
+              ansible_host: 172.16.1.103

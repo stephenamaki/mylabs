@@ -1,0 +1,14 @@
+---
+
+# WAN  Tenants Network Services
+
+overlay_rt_type:
+  admin_subfield: bgp_as
+
+tenants: # dynamic_key: network_services
+  - name: cvnselab03
+    vrfs:
+      - name: default
+        vrf_vni: 101
+      - name: prod
+        vrf_vni: 102

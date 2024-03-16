@@ -1,0 +1,77 @@
+ethernet_interfaces:
+  - name: Ethernet1
+    description: gwy-rtr
+    type: switched
+    shutdown: false
+    mode: trunk
+  - name: Ethernet2
+    description: Cloud1
+    spanning_tree_portfast: edge
+    mode: "trunk"
+    native_vlan: 100
+    shutdown: false 
+  - name: Ethernet3
+    description: LAB Endpoints
+    spanning_tree_portfast: edge
+    mode: "trunk"
+    native_vlan: 100
+    shutdown: false 
+  - name: Ethernet4
+    description: LAB Endpoints
+    spanning_tree_portfast: edge
+    mode: "trunk"
+    native_vlan: 100
+    shutdown: false 
+  - name: Ethernet5
+    description: LAB Endpoints
+    spanning_tree_portfast: edge
+    mode: "trunk"
+    native_vlan: 100
+    shutdown: false 
+  - name: Ethernet6
+    description: LAB Endpoints
+    spanning_tree_portfast: edge
+    mode: "trunk"
+    native_vlan: 100
+    shutdown: false 
+  - name: Ethernet7
+    description: LAB Endpoints
+    spanning_tree_portfast: edge
+    mode: "trunk"
+    native_vlan: 100
+    shutdown: false 
+  - name: Ethernet8
+    description: ZTPSserver
+    spanning_tree_portfast: edge
+    mode: "trunk"
+    native_vlan: 100
+    shutdown: false 
+  # - name: Ethernet8
+  #   description: ZTPSserver
+  #   port_profile: PP-DEFAULTS
+vlans:
+  - id: 100
+    name: VLAN_100
+  - id: 101
+    name: VLAN_101
+  - id: 255
+    name: VLAN_255
+vlan_interfaces:
+  - name: Vlan100
+    description: LAB devices 
+    shutdown: false 
+    ip_address: 172.16.1.250/24
+    ip_address_secondaries:
+      - 172.100.100.250/24
+      - 10.255.255.250/24
+static_routes:
+  - vrf: default
+    destination_address_prefix: 0.0.0.0/0
+    gateway: 172.16.1.1
+# port_profiles:
+#   - profile: PP-DEFAULTS
+#     description: ZTPSserver
+#     spanning_tree_portfast: network
+#     mode: "trunk"
+#     native_vlan: 100
+#     shutdown: false 

@@ -1,0 +1,64 @@
+---
+stun:
+  client:
+    server_profiles:
+      - name: PROFILE1
+        ip_address: 10.255.255.1
+      - name: PROFILE2
+        ip_address: 10.255.255.2
+
+router_path_selection:
+  path_groups:
+    - name: TRANSIT1
+      ipsec_profile: AUTOVPN_TUNNEL
+      local_interfaces:
+        - name: Ethernet1
+          stun:
+            server_profiles: 
+              - PROFILE1
+              - PROFILE2
+      dynamic_peers:
+        enabled: true
+      static_peers: 
+        - router_ip: 10.255.0.1
+          name: DC-RR1
+          ipv4_addresses:
+            - 10.255.255.1
+        - router_ip: 10.255.0.2
+          name: DC-RR1
+          ipv4_addresses:
+            - 10.255.255.2
+    - name: TRANSIT2
+      ipsec_profile: AUTOVPN_TUNNEL
+      local_interfaces:
+        - name: Ethernet2
+          stun:
+            server_profiles: 
+              - PROFILE1
+              - PROFILE2
+      dynamic_peers:
+        enabled: true
+      static_peers: 
+        - router_ip: 10.255.0.1
+          name: DC-RR1
+          ipv4_addresses:
+            - 10.255.255.1
+        - router_ip: 10.255.0.2
+          name: DC-RR1
+          ipv4_addresses:
+            - 10.255.255.2
+
+  load_balance_policies:
+    - name: dps-lb-policy-default
+      path_groups:
+        - name: TRANSIT1
+        - name: TRANSIT2
+  policies:
+    - name: dps-policy-default
+      default_match:
+        load_balance: dps-lb-policy-default
+  vrfs:
+    - name: SITE_TRAFFIC
+      path_selection_policy: dps-policy-default
+    - name: default
+      path_selection_policy: dps-policy-default

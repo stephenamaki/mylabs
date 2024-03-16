@@ -1,0 +1,389 @@
+Last login: Wed Mar 13 14:19:14 2024 from 10.95.65.83
+cvn03-EG2>en
+cvn03-EG2#
+cvn03-EG2#
+cvn03-EG2#
+cvn03-EG2#
+cvn03-EG2#
+cvn03-EG2#
+cvn03-EG2#
+cvn03-EG2#term len 0
+Pagination disabled.
+cvn03-EG2#
+cvn03-EG2#
+cvn03-EG2#
+cvn03-EG2#show stun server bindings
+Current System Time: Wed Mar 13 14:27:25 2024
+          Transaction ID Public Address        Attributes Timeout 
+------------------------ --------------------- ---------- --------
+
+cvn03-EG2#show stun client translations
+Current System Time: Wed Mar 13 14:28:35 2024
+Agent           Transaction ID Source Address        Public Address        Last        
+                                                                           Refreshed   
+----- ------------------------ --------------------- --------------------- ------------
+dps   00000001c0a80c0100000000 172.22.1.4:4500       172.202.1.4:4500      0:02:45 ago 
+
+cvn03-EG2#show ip security connection
+
+show bgp summary 
+Tunnel     Source           Dest             Status       Uptime     Input            Output           Rekey Time                       
+path1      172.22.1.4       172.202.1.6      Established  4 days     183247412 bytes  284071680 bytes  2 minutes   
+                                                                     1306557 pkts     1820194 pkts                 
+path4      172.22.1.4       172.202.1.5      Established  4 hours    4310992 bytes    10062586 bytes   20 minutes  
+                                                                     29852 pkts       63718 pkts                   
+path5      172.22.1.4       172.202.1.3      Established  2 days     62577184 bytes   145927350 bytes  20 minutes  
+                                                                     433268 pkts      924642 pkts                  
+show bgp evpn sumary
+cvn03-EG2#
+cvn03-EG2#show bgp summary 
+show bgp evpn route-type ip-prefix ipv4
+
+show bgp path-selection summary 
+BGP summary information for VRF default
+Router identifier 10.254.12.1, local AS number 65014
+Neighbor              AS Session State AFI/SAFI                AFI/SAFI State   NLRI Rcd   NLRI Acc
+------------ ----------- ------------- ----------------------- -------------- ---------- ----------
+192.168.11.1       65014 Established   IPv4 Dps                Negotiated              4          4
+192.168.11.1       65014 Established   L2VPN EVPN              Negotiated              5          5
+show bgp path-selection 
+cvn03-EG2#show bgp evpn sumary
+% Invalid input
+cvn03-EG2#show bgp evpn route-type ip-prefix ipv4
+show adaptive-virtual-topology application-profile vrf green 
+show adaptive-virtual-topology path vrf green
+BGP routing table information for VRF default
+Router identifier 10.254.12.1, local AS number 65014
+Route status codes: * - valid, > - active, S - Stale, E - ECMP head, e - ECMP
+                    c - Contributing to ECMP, % - Pending best path selection
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+          Network                Next Hop              Metric  LocPref Weight  Path
+ * >      RD: 10.254.10.1:101 ip-prefix 10.254.10.1/32
+                                 192.168.10.1          -       100     0       i Or-ID: 10.254.10.1 C-LST: 10.254.11.1 
+ * >      RD: 10.254.11.1:101 ip-prefix 10.254.11.1/32
+                                 192.168.11.1          -       100     0       i
+ * >      RD: 10.254.12.1:101 ip-prefix 10.254.12.1/32
+                                 -                     -       -       0       i
+ * >      RD: 10.254.13.1:101 ip-prefix 10.254.13.1/32
+                                 192.168.13.1          -       100     0       i Or-ID: 10.254.13.1 C-LST: 10.254.11.1 
+ * >      RD: 10.254.10.1:102 ip-prefix 172.22.2.0/24
+                                 192.168.10.1          -       100     0       i Or-ID: 10.254.10.1 C-LST: 10.254.11.1 
+ * >      RD: 10.254.12.1:102 ip-prefix 172.22.3.0/24
+                                 -                     -       -       0       i
+ * >      RD: 10.254.13.1:102 ip-prefix 172.22.4.0/24
+                                 192.168.13.1          -       100     0       i Or-ID: 10.254.13.1 C-LST: 10.254.11.1 
+cvn03-EG2#
+cvn03-EG2#show bgp path-selection summary 
+show adaptive-virtual-topology flow vrf green
+BGP summary information for VRF default
+Router identifier 10.254.12.1, local AS number 65014
+Neighbor Status Codes: m - Under maintenance
+  Description              Neighbor     V AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
+  cvn03-PF1                192.168.11.1 4 65014          13958     13954    0    0    4d16h Estab   4      4
+cvn03-EG2#show bgp path-selection 
+show ip route interface Dp1
+sh ip route vrf all | no 
+BGP routing table information for VRF default
+Router identifier 10.254.12.1, local AS number 65014
+Route status code: * - valid, S - Stale, q - Queued for advertisement
+
+    NLRI      VTEP            Endpoint        Path Group    WAN ID  UDP Port
+ *  ipv4Dps   192.168.10.1/32 172.202.1.3     internet           1      4500
+ *  ipv4Dps   192.168.12.1/32 172.202.1.4     internet           1      4500
+ *  ipv4Dps   192.168.13.1/32 172.202.1.5     internet           1      4500
+ *  ipv4Ipsec 192.168.10.1/32 -               -                  -         -
+ *  ipv4Ipsec 192.168.12.1/32 -               -                  -         -
+ *  ipv4Ipsec 192.168.13.1/32 -               -                  -         -
+
+cvn03-EG2#show path-selection paths
+Peer         Path Group Source     Destination Path Name Type    TC Route State       Telemetry State           MTU 
+------------ ---------- ---------- ----------- --------- ------- -- ----------------- ------------------------- ----
+192.168.10.1 internet   172.22.1.4 172.202.1.3 path5     dynamic 0  IPsec established active (2 days, 10:02:46) 1414
+192.168.11.1 internet   172.22.1.4 172.202.1.6 path1     static  0  IPsec established active (4 days, 16:14:50) 1414
+192.168.13.1 internet   172.22.1.4 172.202.1.5 path4     dynamic 0  IPsec established active (3:59:57)          1414
+
+show monitor telemetry path counters
+cvn03-EG2#
+cvn03-EG2#show adaptive-virtual-topology application-profile vrf green 
+show flow telemetry ipfix counters
+% Adaptive virtual topology is not configured
+cvn03-EG2#show adaptive-virtual-topology path vrf green
+% Adaptive virtual topology is not configured
+cvn03-EG2#show adaptive-virtual-topology flow vrf green
+show flow telemetry ipfix flow-table
+% Adaptive virtual topology is not configured
+cvn03-EG2#
+cvn03-EG2#show ip route interface Dp1
+
+
+VRF: default
+Codes: C - connected, S - static, K - kernel, 
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+ S        192.168.10.1/32 is directly connected, Dps1
+ S        192.168.11.1/32 is directly connected, Dps1
+ C        192.168.12.1/32 is directly connected, Dps1
+ S        192.168.13.1/32 is directly connected, Dps1
+
+cvn03-EG2#sh ip route vrf all | no 
+
+VRF: default
+Codes: C - connected, S - static, K - kernel, 
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+Gateway of last resort is not set
+
+ B I      10.254.10.1/32 [200/0] via VTEP 192.168.10.1 VNI 101 router-mac 6a:67:cf:eb:a1:b6
+ B I      10.254.11.1/32 [200/0] via VTEP 192.168.11.1 VNI 101 router-mac 2a:3c:ed:d8:e2:cc
+ C        10.254.12.1/32 is directly connected, Loopback0
+ B I      10.254.13.1/32 [200/0] via VTEP 192.168.13.1 VNI 101 router-mac 66:a3:de:de:9c:f4
+ C        172.22.1.0/24 is directly connected, Ethernet1
+ S        172.202.1.0/24 [1/0] via 172.22.1.1, Ethernet1
+ S        192.168.10.1/32 is directly connected, Dps1
+ S        192.168.11.1/32 is directly connected, Dps1
+ C        192.168.12.1/32 is directly connected, Dps1
+ S        192.168.13.1/32 is directly connected, Dps1
+
+
+VRF: MGMT
+Codes: C - connected, S - static, K - kernel, 
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+Gateway of last resort:
+ S        0.0.0.0/0 [1/0] via 10.90.245.1, Management1
+
+show path-selection load-balance counters
+ C        10.90.244.0/23 is directly connected, Management1
+
+! IP routing not enabled
+
+VRF: prod
+Codes: C - connected, S - static, K - kernel, 
+       O - OSPF, IA - OSPF inter area, E1 - OSPF external type 1,
+       E2 - OSPF external type 2, N1 - OSPF NSSA external type 1,
+       N2 - OSPF NSSA external type2, B - Other BGP Routes,
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+       I L2 - IS-IS level 2, O3 - OSPFv3, A B - BGP Aggregate,
+       A O - OSPF Summary, NG - Nexthop Group Static Route,
+       V - VXLAN Control Service, M - Martian,
+       DH - DHCP client installed default route,
+       DP - Dynamic Policy Route, L - VRF Leaked,
+       G  - gRIBI, RC - Route Cache Route,
+       CL - CBF Leaked Route
+
+Gateway of last resort is not set
+
+ B I      172.22.2.0/24 [200/0] via VTEP 192.168.10.1 VNI 102 router-mac 6a:67:cf:eb:a1:b6
+ C        172.22.3.0/24 is directly connected, Ethernet3
+ B I      172.22.4.0/24 [200/0] via VTEP 192.168.13.1 VNI 102 router-mac 66:a3:de:de:9c:f4
+
+cvn03-EG2#
+cvn03-EG2#show monitor telemetry path characteristics
+Peer         Path Group Path Name TC Tx State                  Latency(ms) Jitter(ms) Throughput(Mbps) Loss Rate(%) MTU 
+------------ ---------- --------- -- ------------------------- ----------- ---------- ---------------- ------------ ----
+192.168.10.1 internet   path5     0  active (2 days, 10:02:47) 0.06        8.695      0.0              0.0          1414
+192.168.11.1 internet   path1     0  active (4 days, 16:14:51) 0.445       0.181      0.0              0.0          1414
+192.168.13.1 internet   path4     0  active (3:59:58)          0.044       0.013      0.0              0.0          1414
+
+cvn03-EG2#show monitor telemetry path counters
+Peer         Path Group Path Name TC In Bytes In Packets In Drops Out Bytes Out Packets Out Drops
+------------ ---------- --------- -- -------- ---------- -------- --------- ----------- ---------
+192.168.10.1 internet   path5     0  0        0          0        0         0           0        
+192.168.11.1 internet   path1     0  41539262 468736     0        1680033   15865       0        
+192.168.13.1 internet   path4     0  0        0          0        0         0           0        
+
+cvn03-EG2#show flow telemetry ipfix counters
+
+Received messages: 726634
+
+Exporter: 10.254.12.1   Source port: 54161   Observation domain ID: 1
+Received messages: 513087
+Received template records: 126788
+Received options template records: 507152
+Received data records: 453055
+Received options data records: 2535741
+
+cvn03-EG2#show flow telemetry ipfix flow-table
+Exporter: 10.254.12.1   Source port: 54161   Observation domain ID: 1
+
+Group: IPv4   Number of flows: 128
+Proto  Src IP                    Dest IP                   Src Port Dest Port Pkts    Bytes     Start Time           Last Updated   
+------ ------------------------- ------------------------- -------- --------- ------- --------- -------------------- ---------------
+17     172.202.1.3               172.22.1.4                4500     4500      837786  121007804 2024-03-08 22:09:54  0:00:05 ago    
+17     172.202.1.6               172.22.1.4                4500     4500      1350861 188235216 2024-03-08 22:09:31  0:00:05 ago    
+17     172.202.1.5               172.22.1.4                4500     4500      837800  120986848 2024-03-08 22:09:34  0:00:05 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:28:49  0:00:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 14:24:34  0:00:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 14:24:42  0:00:27 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:25:49  0:02:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:22:49  0:05:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:19:49  0:08:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 14:16:34  0:08:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 14:16:42  0:08:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:16:49  0:11:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:13:49  0:14:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 14:08:34  0:16:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 14:08:42  0:16:27 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:10:49  0:17:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:07:49  0:20:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:04:49  0:23:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 14:00:34  0:24:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 14:00:42  0:24:29 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 14:01:49  0:26:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:58:49  0:29:07 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:55:49  0:32:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 13:52:34  0:32:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 13:52:42  0:32:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:52:49  0:35:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:49:49  0:38:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 13:44:34  0:40:25 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 13:44:42  0:40:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:46:49  0:41:07 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:43:49  0:44:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:40:49  0:47:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 13:36:34  0:48:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 13:36:42  0:48:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:37:49  0:50:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:34:49  0:53:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:31:49  0:56:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 13:28:34  0:56:25 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 13:28:42  0:56:27 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:28:49  0:59:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:25:49  1:02:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 13:20:34  1:04:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 13:20:42  1:04:27 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:22:49  1:05:07 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:19:49  1:08:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:16:49  1:11:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 13:12:42  1:12:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 13:12:34  1:12:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:13:49  1:14:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:10:49  1:17:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:07:49  1:20:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 13:04:42  1:20:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 13:04:34  1:20:27 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:04:49  1:23:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 13:01:49  1:26:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 12:56:34  1:28:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 12:56:42  1:28:29 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:58:49  1:29:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:55:49  1:32:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:52:49  1:35:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 12:48:42  1:36:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 12:48:34  1:36:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:49:49  1:38:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:46:49  1:41:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:43:49  1:44:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 12:40:42  1:44:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 12:40:34  1:44:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:40:49  1:47:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:37:49  1:50:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 12:32:34  1:52:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 12:32:42  1:52:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:34:49  1:53:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:31:49  1:56:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:28:49  1:59:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 12:24:42  2:00:26 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 12:24:34  2:00:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:25:49  2:02:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:22:49  2:05:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:19:49  2:08:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 12:16:42  2:08:29 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 12:16:34  2:08:29 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:16:49  2:11:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:13:49  2:14:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 12:08:34  2:16:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 12:08:42  2:16:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:10:49  2:17:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:07:49  2:20:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:04:49  2:23:07 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 12:00:42  2:24:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 12:00:34  2:24:29 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 12:01:49  2:26:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:58:49  2:29:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:55:49  2:32:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 11:52:34  2:32:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 11:52:42  2:32:29 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:52:49  2:35:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:49:49  2:38:07 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 11:44:34  2:40:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 11:44:42  2:40:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:46:49  2:41:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:43:49  2:44:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:40:49  2:47:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 11:36:42  2:48:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 11:36:34  2:48:29 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:37:49  2:50:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:34:49  2:53:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:31:49  2:56:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 11:28:34  2:56:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 11:28:42  2:56:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:28:49  2:59:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:25:49  3:02:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 11:20:34  3:04:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 11:20:42  3:04:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:22:49  3:05:10 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:19:49  3:08:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:16:49  3:11:07 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 11:12:34  3:12:27 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 11:12:42  3:12:29 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:13:49  3:14:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:10:49  3:17:08 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:07:49  3:20:09 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 11:04:34  3:20:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 11:04:42  3:20:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:04:49  3:23:09 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 11:01:49  3:26:08 ago    
+17     0.0.0.0                   255.255.255.255           68       67        40      12560     2024-03-13 10:56:42  3:28:28 ago    
+17     0.0.0.0                   255.255.255.255           68       67        60      18840     2024-03-13 10:56:34  3:28:28 ago    
+17     172.202.1.6               172.22.1.4                3478     4500      1       92        2024-03-13 10:58:49  3:29:08 ago    
+
+
+cvn03-EG2#
+cvn03-EG2#show path-selection load-balance counters
+App Profile               Vrf     Peer         Path Group Path  Flows Throughput(Mbps)
+------------------------- ------- ------------ ---------- ----- ----- ----------------
+default_app               prod    192.168.13.1 internet   path4 0     0.0             
+APP-PROFILE-CONTROL-PLANE default 192.168.10.1 internet   path5 0     0.0             
+default_app               default 192.168.13.1 internet   path4 0     0.0             
+default_app               prod    192.168.10.1 internet   path5 0     0.0             
+default_app               default 192.168.11.1 internet   path1 0     0.0             
+APP-PROFILE-CONTROL-PLANE default 192.168.11.1 internet   path1 1     0.0             
+default_app               prod    192.168.11.1 internet   path1 0     0.0             
+default_app               default 192.168.10.1 internet   path5 0     0.0             
+APP-PROFILE-CONTROL-PLANE default 192.168.13.1 internet   path4 0     0.0             
+
+cvn03-EG2#
+cvn03-EG2#

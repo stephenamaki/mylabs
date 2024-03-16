@@ -1,0 +1,12 @@
+hostname: DC-RR1
+mgmt_ip_address: 172.16.1.11/24
+eth1_ip_address: 10.255.255.1/24
+eth1_description: TRANSIT1
+eth2_ip_address: 10.240.241.1/24
+lo0_ip_address: 10.255.0.1
+transit_neighbor_ip: 10.255.255.241
+transit_neighbor_asn: '65100'
+site_traffic_rd: 10.255.0.1:1
+site_traffic_neighbor_ip: 10.240.241.251
+site_traffic_neighbor_asn: '65101'
+bgp_password: $1c$G8BQN0ezkiJOX2cuAYpsEA==

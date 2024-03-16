@@ -1,0 +1,73 @@
+---
+# Please note, comments below are intended for site documentation only
+- name: Pathfinder Config Generation
+  hosts: PATHFINDERS
+  gather_facts: false
+  tasks:
+    - name: Building Pathfinder configs using jinja2
+      ansible.builtin.template:
+        src: templates/pathfinder_template.j2
+        dest: intended/structured_configs/{{ hostname }}.yml
+
+- name: Edge Node Config Generation
+  hosts: EDGES_NODES
+  gather_facts: false
+  tasks:
+    - name: Building Edge Node configs using jinja2
+      ansible.builtin.template:
+        src: templates/edge_node_template.j2
+        dest: intended/structured_configs/{{ hostname }}.yml
+
+- name: Transit Node Config Generation
+  hosts: TRANSIT
+  gather_facts: false
+  tasks:
+    - name: Building Edge Node configs using jinja2
+      ansible.builtin.template:
+        src: templates/transit_template.j2
+        dest: intended/structured_configs/{{ hostname }}.yml
+
+- name: HQ Device Config Generation
+  hosts: HQ_TRAFFIC
+  gather_facts: false
+  tasks:
+    - name: Building Edge Node configs using jinja2
+      ansible.builtin.template:
+        src: templates/hq_devices.j2
+        dest: intended/structured_configs/{{ hostname }}.yml
+
+- name: Remote Device Config Generation
+  hosts: CORE-S1
+  gather_facts: false
+  tasks:
+    - name: Building Site1 Edge Node configs using jinja2
+      # hosts: CORE-S1
+      ansible.builtin.template:
+        src: templates/site1_devices.j2
+        dest: intended/structured_configs/{{ hostname }}.yml
+
+- name: Remote Device Config Generation
+  hosts: CORE-S2
+  gather_facts: false
+  tasks:
+    - name: Building Site2 Edge Node configs using jinja2
+      # hosts: CORE-S2
+      ansible.builtin.template:
+        src: templates/site2_devices.j2
+        dest: intended/structured_configs/{{ hostname }}.yml
+
+- name: Run AVD # (1)!
+  hosts: FABRIC
+  gather_facts: false
+  tasks:
+    # - name: Generate AVD Structured Configurations and Fabric Documentation # (2)!
+    #   ansible.builtin.import_role:
+    #     name: arista.avd.eos_designs
+
+    - name: Generate Device Configurations and Documentation # (3)!
+      ansible.builtin.import_role:
+        name: arista.avd.eos_cli_config_gen
+
+    - name: Deploy Configurations to Devices # (4)!
+      ansible.builtin.import_role:
+        name: arista.avd.eos_config_deploy_eapi

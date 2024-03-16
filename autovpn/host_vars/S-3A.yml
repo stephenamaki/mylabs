@@ -1,0 +1,8 @@
+hostname: S-3A
+mgmt_ip_address: 172.16.1.104/24
+eth3_ip_address: 10.250.254.1/24
+lo0_ip_address: 10.255.0.104
+site_traffic_rd: 10.255.0.104:1
+site_traffic_neighbor_ip: 10.250.254.251
+site_traffic_neighbor_asn: '65104'
+bgp_password: $1c$G8BQN0ezkiJOX2cuAYpsEA==

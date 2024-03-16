@@ -1,0 +1,244 @@
+cvn03-PF1#
+cvn03-PF1#
+cvn03-PF1#sh run | no
+! Command: show running-config
+! device: cvn03-PF1 (vEOS, EOS-4.31.1FX-AWE-cloud)
+!
+! boot system flash:/CloudEOS.swi
+!
+no aaa root
+!
+username admin role network-admin secret sha512 $6$U7MfzszmMFOKugHF$bJ8zw0YPLusjdQO0aMtnB5OPnBERRfBfOQfhvNpOUJ5nsqh6JizD5dBe34SEFyBB8isV8ajbBI.NDUCCg7ee8/
+username arastra privilege 15 secret sha512 $6$p6mzeZTW8UQul.an$fUrlIbFSyXvmAoILxtbIW9ucu/QD.XsAJbA7DZSwOTbb98oCIpDal8U2F4YunYA2VjDZEyOz9TGtXfTdbaFBb0
+!
+agent KernelFib environment KERNELFIB_PROGRAM_ALL_ECMP=1
+!
+daemon TerminAttr
+   exec /usr/bin/TerminAttr -cvaddr=www.cv-staging.corp.arista.io:443 -taillogs -cvauth=token-secure,/tmp/cv-onboarding-token -cvvrf=MGMT -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -disableaaa
+   no shutdown
+!
+switchport default mode routed
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+logging console debugging
+!
+hostname cvn03-PF1
+ip domain lookup source-interface Management1
+ip name-server vrf MGMT 10.14.0.1
+ip name-server vrf MGMT 172.22.22.40
+ip name-server vrf MGMT 8.8.4.4 priority 4
+ip name-server vrf MGMT 8.8.8.8 priority 4
+!
+router path-selection
+   peer dynamic source stun
+   tcp mss ceiling ipv4 ingress
+   !
+   path-group internet id 101
+      ipsec profile CP-PROFILE
+      !
+      local interface Ethernet1
+   !
+   load-balance policy LB-DEFAULT-AVT-POLICY-CONTROL-PLANE
+      path-group internet
+   !
+   load-balance policy LB-DEFAULT-AVT-POLICY-DEFAULT
+      path-group internet
+   !
+   load-balance policy LB-PROD-AVT-POLICY-DEFAULT
+      path-group internet
+   !
+   policy DEFAULT-AVT-POLICY-WITH-CP
+      default-match
+         load-balance LB-DEFAULT-AVT-POLICY-DEFAULT
+      !
+      10 application-profile APP-PROFILE-CONTROL-PLANE
+         load-balance LB-DEFAULT-AVT-POLICY-CONTROL-PLANE
+   !
+   policy PROD-AVT-POLICY
+      default-match
+         load-balance LB-PROD-AVT-POLICY-DEFAULT
+   !
+   vrf default
+      path-selection-policy DEFAULT-AVT-POLICY-WITH-CP
+   !
+   vrf prod
+      path-selection-policy PROD-AVT-POLICY
+!
+platform sfe data-plane cpu allocation maximum 1
+!
+spanning-tree mode none
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vrf instance MGMT
+!
+vrf instance prod
+!
+management api http-commands
+   no shutdown
+   !
+   vrf MGMT
+      no shutdown
+!
+aaa authorization exec default local
+!
+ip security
+   ike policy CP-IKE-POLICY
+      local-id 192.168.11.1
+   !
+   sa policy CP-SA-POLICY
+   !
+   profile CP-PROFILE
+      ike-policy CP-IKE-POLICY
+      sa-policy CP-SA-POLICY
+      connection start
+      shared-key 7 0110100A480E0A0E231D1E
+      dpd 10 50 clear
+      mode transport
+!
+interface Dps1
+   description DPS Interface
+   mtu 9214
+   ip address 192.168.11.1/32
+!
+interface Ethernet1
+   description internet
+   no switchport
+   ip address 172.22.1.6/24
+!
+interface Ethernet2
+   no switchport
+!
+interface Ethernet3
+   no switchport
+!
+interface Ethernet4
+   no switchport
+!
+interface Ethernet5
+   no switchport
+!
+interface Ethernet6
+   no switchport
+!
+interface Ethernet7
+   no switchport
+!
+interface Ethernet8
+   no switchport
+!
+interface Loopback0
+   description Router_ID
+   ip address 10.254.11.1/32
+!
+interface Management1
+   vrf MGMT
+   ip address 10.90.245.236/23
+!
+interface Vxlan1
+   description cvn03-PF1_VTEP
+   vxlan source-interface Dps1
+   vxlan udp-port 4789
+   vxlan vrf default vni 101
+   vxlan vrf prod vni 102
+!
+application traffic recognition
+   application ipv4 APP-CONTROL-PLANE
+      source prefix field-set PFX-LOCAL-VTEP-IP
+   !
+   application-profile APP-PROFILE-CONTROL-PLANE
+      application APP-CONTROL-PLANE
+   !
+   field-set ipv4 prefix PFX-LOCAL-VTEP-IP
+      192.168.11.1/32
+!
+ip routing
+no ip routing vrf MGMT
+ip routing vrf prod
+!
+ip extcommunity-list ECL-EVPN-SOO permit soo 10.254.11.1:0
+!
+ip prefix-list PL-LOOPBACKS-EVPN-OVERLAY
+   seq 10 permit 10.254.11.0/30 eq 32
+!
+ip route 172.202.1.0/24 172.22.1.1
+ip route vrf MGMT 0.0.0.0/0 10.90.245.1
+!
+ntp server vrf MGMT 10.41.194.6
+ntp server vrf MGMT 10.85.14.245
+ntp server vrf MGMT 10.88.21.235
+ntp server vrf MGMT 10.90.20.122
+!
+route-map RM-CONN-2-BGP permit 10
+   match ip address prefix-list PL-LOOPBACKS-EVPN-OVERLAY
+   set extcommunity soo 10.254.11.1:0 additive
+!
+route-map RM-EVPN-EXPORT-VRF-DEFAULT permit 10
+   match extcommunity ECL-EVPN-SOO
+!
+router bfd
+   multihop interval 300 min-rx 300 multiplier 3
+!
+router bgp 65014
+   router-id 10.254.11.1
+   no bgp default ipv4-unicast
+   bgp cluster-id 10.254.11.1
+   maximum-paths 16
+   bgp listen range 192.168.10.0/31 peer-group WAN-OVERLAY-PEERS remote-as 65014
+   bgp listen range 192.168.12.0/31 peer-group WAN-OVERLAY-PEERS remote-as 65014
+   bgp listen range 192.168.13.0/31 peer-group WAN-OVERLAY-PEERS remote-as 65014
+   neighbor IPv4-UNDERLAY-PEERS peer group
+   neighbor IPv4-UNDERLAY-PEERS send-community
+   neighbor IPv4-UNDERLAY-PEERS maximum-routes 12000
+   neighbor WAN-OVERLAY-PEERS peer group
+   neighbor WAN-OVERLAY-PEERS remote-as 65014
+   neighbor WAN-OVERLAY-PEERS update-source Dps1
+   neighbor WAN-OVERLAY-PEERS bfd
+   neighbor WAN-OVERLAY-PEERS bfd interval 1000 min-rx 1000 multiplier 10
+   neighbor WAN-OVERLAY-PEERS ttl maximum-hops 1
+   neighbor WAN-OVERLAY-PEERS route-reflector-client
+   neighbor WAN-OVERLAY-PEERS password 7 htm4AZe9mIQOO1uiMuGgYQ==
+   neighbor WAN-OVERLAY-PEERS send-community
+   neighbor WAN-OVERLAY-PEERS maximum-routes 0
+   redistribute connected route-map RM-CONN-2-BGP
+   !
+   address-family evpn
+      neighbor WAN-OVERLAY-PEERS activate
+      next-hop resolution disabled
+   !
+   address-family ipv4
+      neighbor IPv4-UNDERLAY-PEERS activate
+      no neighbor WAN-OVERLAY-PEERS activate
+   !
+   address-family path-selection
+      bgp additional-paths receive
+      bgp additional-paths send any
+      neighbor WAN-OVERLAY-PEERS activate
+   !
+   vrf default
+      rd 10.254.11.1:101
+      route-target import evpn 65014:101
+      route-target export evpn 65014:101
+      route-target export evpn route-map RM-EVPN-EXPORT-VRF-DEFAULT
+   !
+   vrf prod
+      rd 10.254.11.1:102
+      route-target import evpn 65014:102
+      route-target export evpn 65014:102
+      router-id 10.254.11.1
+      redistribute connected
+!
+stun
+   server
+      local-interface Ethernet1
+!
+management ssh
+   client-alive interval 240
+!
+end
+cvn03-PF1#

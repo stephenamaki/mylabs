@@ -1,0 +1,217 @@
+ethernet_interfaces:
+  - name: Ethernet1
+    description: Public_Internet
+    type: routed
+    shutdown: false
+    ip_address: 192.168.224.104/24
+    ip_nat:
+      source:
+        dynamic:
+          - access_list: NAT_ACL
+            nat_type: "overload"
+    eos_cli: |
+      !
+      mac-address 00:00:00:22:41:04
+  - name: Ethernet2
+    description: LAN_to_LAB_Devices
+    type: routed
+    shutdown: false
+    eos_cli: |
+      !
+      mac-address 00:00:00:01:00:01
+  - name: Ethernet2.100
+    description: LAN_to_LAB_Devices
+    type: l3dot1q
+    shutdown: false
+    encapsulation_dot1q_vlan: 100
+    dhcp_server_ipv4: true
+    ip_address: 172.16.1.1/24
+    ip_address_secondaries:
+      - 172.100.100.1/24
+      - 10.255.255.254/24
+    eos_cli: |
+      !
+      arp aging timeout 60
+
+static_routes:
+  - vrf: default
+    destination_address_prefix: 0.0.0.0/0
+    gateway: 192.168.224.1
+# monitor_connectivity:
+#   shutdown: false
+#   interval: <int>
+#   hosts:
+#     - name: google_dns
+#       ip: 8.8.8.8
+#     - name: host_001
+#       ip: 172.16.1.11
+
+
+ip_access_lists:
+  - name: NAT_ACL
+    # counters_per_entry: true
+    entries:
+      - sequence: 10
+        action: "deny"
+        protocol: ip
+        source: 10.0.0.0/8
+        destination: 192.168.224.0/24
+      - sequence: 20
+        action: "deny"
+        protocol: ip
+        source: 172.16.1.0/24
+        destination: 192.168.224.0/24
+      - sequence: 30
+        action: "deny"
+        protocol: ip
+        source: 172.100.100.0/24
+        destination: 192.168.224.0/24
+      - sequence: 40
+        action: "deny"
+        protocol: ip
+        source: 10.255.255.0/24
+        destination: 192.168.224.0/24
+      - sequence: 50
+        action: "permit"
+        protocol: ip
+        source: any
+        destination: any
+
+# dhcp_servers:
+#   - disabled: true
+#     vrf: default
+#     dns_domain_name_ipv4: arista.com
+#     subnets:
+#       - subnet: 172.16.1.0/24
+#         default_gateway: 172.16.1.1
+#         dns_servers:
+#           - 8.8.8.8
+#           - 4.2.2.2
+#         ranges:
+#           - start: 172.16.1.165
+#             end: 172.16.1.245
+#         lease_time:
+#           days: 1
+#           hours: 0
+#           minutes: 0
+#     ipv4_vendor_options:
+#       - vendor_id: NTP
+#         sub_options:
+#           - code: 42
+#             array_ipv4_address:
+#               - 192.5.41.40
+#               - 192.5.41.41
+#       - vendor_id: vendorClassArista
+#         sub_options:
+#           - code: 6
+#             string: "Arista"
+eos_cli: |
+  !
+  dhcp server
+    disabled
+    dns domain name ipv4 arista.com
+    lease time ipv4 1 days 0 hours 0 minutes
+    dns server ipv4 8.8.8.8 4.2.2.2
+    !
+    subnet 172.16.1.0/24
+      range 172.16.1.165 172.16.1.245
+      default-gateway 172.16.1.1
+      tftp server file http://172.16.1.2/bootfile
+    !
+    vendor-option ipv4 NTP
+      sub-option 42 type array ipv4-address data 192.5.41.40 192.5.41.41
+    !
+    vendor-option ipv4 vendorClassArista
+      sub-option 6 type string data "Arista"
+  !
+  monitor connectivity
+    no shutdown
+    !
+    host google_dns
+        ip 8.8.8.8
+        icmp echo size 36
+    !
+    host host_001
+        ip 172.16.1.11
+        icmp echo size 36
+    !
+    host host_002
+        ip 172.16.1.12
+        icmp echo size 36
+    !
+    host host_003
+        ip 172.16.1.101
+        icmp echo size 36
+    !
+    host host_004
+        ip 172.16.1.102
+        icmp echo size 36
+    !
+    host host_005
+        ip 172.16.1.103
+        icmp echo size 36
+    !
+    host host_006
+        ip 172.16.1.104
+        icmp echo size 36
+    !
+    host host_007
+        ip 172.16.1.151
+        icmp echo size 36
+    !
+    host host_008
+        ip 172.16.1.152
+        icmp echo size 36
+    !
+    host host_009
+        ip 172.16.1.241
+        icmp echo size 36
+    !
+    host host_010
+        ip 172.16.1.242
+        icmp echo size 36
+    !
+    host host_011
+        ip 172.16.1.243
+        icmp echo size 36
+    !
+    host host_012
+        ip 172.16.1.244
+        icmp echo size 36
+    !
+    host host_013
+        ip 172.16.1.245
+        icmp echo size 36
+    !
+    host host_014
+        ip 172.16.1.21
+        icmp echo size 36
+    !
+    host host_015
+        ip 172.16.1.22
+        icmp echo size 36
+    !
+    host host_016
+        ip 172.16.1.111
+        icmp echo size 36
+    !
+    host host_017
+        ip 172.16.1.112
+        icmp echo size 36
+    !
+    host host_018
+        ip 172.16.1.113
+        icmp echo size 36
+    !
+    host host_019
+        ip 172.16.1.114
+        icmp echo size 36
+    !
+    host host_020
+        ip 172.16.1.161
+        icmp echo size 36
+    !
+    host host_021
+        ip 172.16.1.162
+        icmp echo size 36
+  !

@@ -1,0 +1,13 @@
+hostname: CORE-S2
+mgmt_ip_address: 172.16.1.245/24
+eth1_ip_address: 10.250.252.251/24
+eth1_description: AUTOVPN_EDGE
+eth2_ip_address: 10.250.253.251/24
+eth2_description: AUTOVPN_EDGE
+lo0_ip_address: 10.0.0.245
+bgp_asn: '65103'
+autovpn1_ip_address: 10.250.252.1
+autovpn1_description: S-2A
+autovpn2_ip_address: 10.250.253.1
+autovpn2_description: S-2B
+bgp_password: $1c$G8BQN0ezkiJOX2cuAYpsEA==

@@ -1,0 +1,150 @@
+---
+# WAN Pathfinder Nodes
+
+# node_type_keys:
+#   - key: wan_rr
+#     type: wan_rr
+#     connected_endpoints: false
+#     mlag_support: false
+#     underlay_router: false
+#     uplink_type: port-channel
+
+type: wan_rr
+
+wan_rr: # dynamic_key: node_type
+  defaults:
+    data_plane_cpu_allocation_max: 1
+    loopback_ipv4_pool: 10.255.0.0/24
+    vtep_loopback_ipv4_pool: 10.255.1.0/24
+    filter:
+      always_include_vrfs_in_tenants: [cvnselab03]
+    # bgp_as: '65000'
+  nodes:
+    - name: DC-RR1
+      id: 1
+      l3_interfaces:
+        - name: Ethernet1
+          description: TRANSIT1
+          ip_address: 10.255.255.1/24
+          # shutdown: false
+          wan_carrier: TRANSIT1
+        # - name: Ethernet2
+        #   description: SITE_TRAFFIC
+        #   type: routed
+        #   vrf: SITE_TRAFFIC
+        #   shutdown: false
+        #   ip_address: 10.240.241.1/24
+    - name: DC-RR2
+      id: 2
+      l3_interfaces:
+        - name: Ethernet1
+          description: TRANSIT2
+          ip_address: 10.255.255.2/24
+          wan_carrier: TRANSIT2
+
+# wan_mode: autovpn
+# fabric_name: selab03
+
+use_anta: true
+deploy_to_cv_accept_preview: true
+deploy_to_cv_inventory_host: cloudvision
+bgp_update_wait_install: false
+
+bgp_as: 65000
+
+bgp_peer_groups:
+  wan_overlay_peers:
+    name: AUTOVPN_EDGES
+    # description: Routing_to_Edge_Routers
+    password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+    bfd: true
+    listen_range_prefixes:
+      - 10.255.0.0/24
+    structured_config:
+      description: Routing_to_Edge_Routers
+      update_source: 'Loopback0'
+      send_community: 'extended'
+      maximum_routes: 12000
+
+wan_ipsec_profiles:
+  control_plane: 
+    ike_policy_name: CP_IKE_AUTOVPN
+    sa_policy_name: CP_SA_AUTOVPN
+    profile_name: CP_AUTOVPN_TUNNEL
+    shared_key: 141600021F102B
+  data_plane:
+    ike_policy_name: DP_IKE_AUTOVPN
+    sa_policy_name: DP_SA_AUTOVPN
+    profile_name: DP_AUTOVPN_TUNNEL
+    shared_key: 141600021F102B
+
+# wan_ipsec_profiles:
+#   control_plane:
+#     shared_key: 0110100A480E0A0E231D1E
+#   data_plane:
+#     shared_key: 0110100A480E0A0E231D1E
+
+wan_route_servers:
+  - hostname: DC-RR1
+    vtep_ip: 10.255.1.1
+    path_groups:
+      - name: TRANSIT1
+        interfaces:
+            - name: Ethernet1
+              ip_address: 10.255.255.1
+  - hostname: DC-RR2
+    vtep_ip: 10.255.1.2
+    path_groups:
+      - name: TRANSIT2
+        interfaces:
+            - name: Ethernet1
+              ip_address: 10.255.255.2
+
+wan_path_groups:
+  - name: TRANSIT1
+    id: 101
+  - name: TRANSIT2
+    id: 102
+
+wan_carriers:
+  - name: TRANSIT1
+    path_group: TRANSIT1
+  - name: TRANSIT2
+    path_group: TRANSIT2
+
+cv_pathfinder_regions:
+  - name: Global
+    id: 1
+    sites:
+      - description: Site1 
+        name: S-1A
+        id: 1001
+      - description: Site2A
+        name: S-2A
+        id: 2001
+      - description: Site2B
+        name: S-2B
+        id: 2002
+      - description: Site3
+        name: S-3A
+        id: 3001
+
+wan_virtual_topologies:
+  vrfs:
+    - name: default
+      policy: DEFAULT-AVT-POLICY
+      wan_vni: 101
+    - name: prod
+      policy: PROD-AVT-POLICY
+      wan_vni: 102
+  policies:
+    - name: DEFAULT-AVT-POLICY
+      default_virtual_topology:
+        path_groups:
+          - names: [internet]
+            preference: preferred
+    - name: PROD-AVT-POLICY
+      default_virtual_topology:
+        path_groups:
+          - names: [internet]
+            preference: preferred

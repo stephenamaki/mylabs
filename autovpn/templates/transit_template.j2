@@ -1,0 +1,157 @@
+management_interfaces:
+  - name: Management1
+    description: oob_management
+    shutdown: false
+    vrf: MGMT
+    ip_address: {{ mgmt_ip_address }}
+    gateway: 172.16.1.1
+    type: oob
+ethernet_interfaces:
+  - name: Ethernet1
+    description: {{ eth1_description }}
+    type: routed
+    shutdown: false
+    ip_address: {{ eth1_ip_address }}
+    dhcp_server_ipv4: true
+  - name: Ethernet2
+    description: {{ eth2_description }}
+    type: routed
+    shutdown: false
+    ip_address: {{ eth2_ip_address }}
+    dhcp_server_ipv4: true 
+  - name: Ethernet3
+    description: {{ eth3_description }}
+    type: routed
+    shutdown: false
+    ip_address: {{ eth3_ip_address }}
+    dhcp_server_ipv4: true 
+  - name: Ethernet4
+    description: {{ eth4_description }}
+    type: routed
+    shutdown: false
+    ip_address: {{ eth4_ip_address }}
+    dhcp_server_ipv4: true 
+  - name: Ethernet5
+    description: {{ eth5_description }}
+    type: switched
+    shutdown: false
+    mode: access 
+    vlans: 255
+    spanning_tree_portfast: edge
+  - name: Ethernet7
+    description: {{ eth7_description }}
+    type: port-channel-member
+    shutdown: false
+    channel_group:
+      id: 1
+      mode: active
+  - name: Ethernet8
+    description: {{ eth8_description }}
+    type: port-channel-member
+    shutdown: false
+    channel_group:
+      id: 1
+      mode: active
+port_channel_interfaces:
+  - name: Port-Channel1
+    description: {{ Po1_description }}
+    type: switched
+    shutdown: false
+    mode: trunk
+    vlans: all
+loopback_interfaces:
+  - name: Loopback0
+    description: Transit_Loopback
+    shutdown: false
+    ip_address: {{ lo0_ip_address }}/32
+vlan_interfaces:
+  - name: Vlan255
+    description: Transit_VLAN
+    shutdown: false 
+    ip_address: {{ vlan255_ip_address }}
+router_bgp:
+  as: '{{ bgp_asn }}'
+  router_id: {{ lo0_ip_address }}
+  maximum_paths:
+    paths: 16
+    ecmp: 16
+  bgp:
+    default:
+      ipv4_unicast: false
+  peer_groups:
+    - name: TRANSIT_ROUTING
+      description: Routing_to_TRANSIT2
+      bfd: true
+      password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+      send_community: 'all'
+      maximum_routes: 12000
+  neighbors:
+    - ip_address: {{ transit_neighbor_1_ip }}
+      peer_group: TRANSIT_ROUTING
+      remote_as: '65000'
+      description: {{ transit_neighbor_1_desc }}
+    - ip_address: {{ transit_neighbor_2_ip }}
+      peer_group: TRANSIT_ROUTING
+      remote_as: '{{ transit_neighbor_2_asn }}'
+      description: {{ transit_neighbor_2_desc }}
+  redistribute_routes:
+    - source_protocol: connected
+      route_map: RM-CONN-2-BGP
+  address_family_ipv4:
+    peer_groups:
+      - name: TRANSIT_ROUTING
+        activate: true
+
+dhcp_servers:
+  - disabled: false
+    vrf: default
+    dns_domain_name_ipv4: arista.com
+    subnets:
+      - subnet: {{ s1a_subnet }}.0/24
+        default_gateway: {{ s1a_subnet }}.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: {{ s1a_subnet }}.2
+            end: {{ s1a_subnet }}.255
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0
+      - subnet: {{ s2a_subnet }}.0/24
+        default_gateway: {{ s2a_subnet }}.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: {{ s2a_subnet }}.2
+            end: {{ s2a_subnet }}.255
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0
+      - subnet: {{ s2b_subnet }}.0/24
+        default_gateway: {{ s2b_subnet }}.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: {{ s2b_subnet }}.2
+            end: {{ s2b_subnet }}.255
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0
+      - subnet: {{ s3a_subnet }}.0/24
+        default_gateway: {{ s3a_subnet }}.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: {{ s3a_subnet }}.2
+            end: {{ s3a_subnet }}.255
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0

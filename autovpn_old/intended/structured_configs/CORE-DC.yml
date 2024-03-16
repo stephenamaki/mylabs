@@ -1,0 +1,53 @@
+management_interfaces:
+  - name: Management1
+    description: oob_management
+    shutdown: false
+    vrf: MGMT
+    ip_address: 172.16.1.243/24
+    gateway: 172.16.1.1
+    type: oob
+ethernet_interfaces:
+  - name: Ethernet1
+    description: PATHFINDERS
+    type: routed
+    shutdown: false
+    ip_address: 10.240.241.251/24
+  - name: Ethernet2
+    description: PATHFINDERS
+    type: routed
+    shutdown: false
+    ip_address: 10.240.242.251/24
+loopback_interfaces:
+  - name: Loopback0
+    description: Testing Loopback
+    shutdown: false
+    ip_address: 10.0.0.243/32
+router_bgp:
+  as: '65101'
+  router_id: 10.0.0.243
+  maximum_paths:
+    paths: 16
+    ecmp: 16
+  bgp:
+    default:
+      ipv4_unicast: false
+  peer_groups:
+    - name: PATHFINDERS
+      bfd: true
+      password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+      send_community: 'all'
+      maximum_routes: 12000
+      remote_as: '65000'
+  neighbors:
+    - ip_address: 10.240.241.1
+      peer_group: PATHFINDERS
+      description: DC-RR1
+    - ip_address: 10.240.242.1
+      peer_group: PATHFINDERS
+      description: DC-RR2
+  redistribute_routes:
+    - source_protocol: connected
+  address_family_ipv4:
+    peer_groups:
+      - name: PATHFINDERS
+        activate: true

@@ -1,0 +1,63 @@
+- name: Deploy WAN Configuration with CloudVision
+  hosts: FABRIC
+  connection: local
+  gather_facts: false
+  tasks:
+    # - name: Deploy configurations and tags to CloudVision
+    #   ansible.builtin.import_role:
+    #     name: arista.avd.deploy_to_cv
+    #   vars:
+    #     cv_submit_workspace: false
+    #     cv_workspace_name: "AVD_Testing"
+    #     cv_workspace_description: "Test AVD Development for CV Pathfinder"
+    #     cv_strict_tags: false
+    #     cv_register_detailed_results: true
+    #     cv_workspace_id: ""
+    - name: Provision CVP with AVD configuration
+      run_once: true
+      delegate_to: localhost
+      arista.avd.deploy_to_cv:
+        cv_servers: [ "www.cv-staging.corp.arista.io" ]
+        cv_token: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJkaWQiOjUxMTIxODEsImRzbiI6ImFuc2libGUiLCJkc3QiOiJhY2NvdW50IiwiZXhwIjoxODY4MDU0ODM4LCJpYXQiOjE3MTAyODg0NDQsIm9naSI6NDIxMTk0MCwib2duIjoic2FtYWtpLWxhYiIsInNpZCI6IjRiOWJmYWI5YjM3N2FkOTJjM2U4MzhlMmE1YTg0MjAwZTY5Yzc5ODY1ZjdmNTU4YTI2YjdhYTYzYzUzZDc3N2UtanVQTGEyaFdrUnRIX1l3YWFpTzhXX3FlNXRpYnBUcVJGdmpWbUJuZiJ9.DB05JV71iHrQfMs4y2JhBp16lsMhnron9wYMDzytej8QhpHPOCXUyUhmqu61_AuZgmIdvBXW20SdFKiklZ9bOQ"
+
+        # cv_verify_certs: True
+        configuration_dir: "{{ inventory_dir }}/intended/configs"
+        structured_config_dir: "{{ inventory_dir }}/intended/structured_configs"
+        # structured_config_suffix: "yml"
+        device_list: "{{ ansible_play_hosts }}"
+        # strict_tags: false
+        # skip_missing_devices: false
+        # configlet_name_template: "AVD-${hostname}"
+        workspace:
+        #   name:
+        #   description:
+          # id:
+          requested_state: submitted
+          # force: False
+        change_control:
+          requested_state: pending approval
+        return_details: false
+
+
+# # Roles Defaults - ouptput directories
+
+# # Root directory where to build output structure
+# root_dir: '{{ inventory_dir }}'
+
+# # Documentation folders
+# # Main documentation folder
+# documentation_dir_name: 'documentation'
+# documentation_dir: '{{ root_dir }}/{{ documentation_dir_name }}'
+
+# # Fabric documentation
+# fabric_dir_name: 'fabric'
+# fabric_dir: '{{ documentation_dir }}/{{ fabric_dir_name }}'
+
+# # AVD configurations output
+# # Main output directory
+# output_dir_name: 'intended'
+# output_dir: '{{ root_dir }}/{{ output_dir_name }}'
+
+# # Output for structured YAML files:
+# structured_dir_name: 'structured_configs'
+# structured_dir: '{{ output_dir }}/{{ structured_dir_name }}'

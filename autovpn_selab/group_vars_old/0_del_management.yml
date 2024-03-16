@@ -1,0 +1,15 @@
+---
+
+local_users:
+
+custom_structured_configuration_management_ssh:
+  client_alive:
+    interval: 240
+
+skipped_tests:
+  - category: AvdTestHardware
+    tests:
+      - VerifyEnvironmentPower
+      - VerifyEnvironmentCooling
+      - VerifyTemperature
+      - VerifyTransceiversManufacturers
