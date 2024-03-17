@@ -1,0 +1,88 @@
+---
+# Ansible connectivity definitions
+# eAPI connectivity via HTTPS is specified (as opposed to CLI via SSH)
+ansible_connection: ansible.netcommon.httpapi
+# Specifies that we are indeed using Arista EOS
+ansible_network_os: arista.eos.eos
+# This user/password must exist on the switches to enable Ansible access
+ansible_user: ansible
+ansible_password: ansible
+# User escalation (to enter enable mode)
+ansible_become: true
+ansible_become_method: enable
+# Use SSL (HTTPS)
+ansible_httpapi_use_ssl: true
+# Do not try to validate certs
+ansible_httpapi_validate_certs: false
+
+# SWA notes - add ciphers to communicate over httpapi towards the EOS device. 
+ansible_httpapi_ciphers: AES256-SHA:DHE-RSA-AES256-SHA:AES128-SHA:DHE-RSA-AES128-SHA
+
+# AAA Authorization
+aaa_authorization:
+  exec:
+    default: local
+
+# Local users
+local_users:
+  # Define a new user, which is called "ansible"
+  - name: ansible
+    privilege: 15
+    role: network-admin
+    # Password set to "ansible". Same string as the device generates when configuring a username.
+    sha512_password: $6$7u4j1rkb3VELgcZE$EJt2Qff8kd/TapRoci0XaIZsL4tFzgq1YZBLD9c6f/knXzvcYY0NcMKndZeCv0T268knGKhOEwZAxqKjlMm920
+  - name: admin
+    privilege: 15
+    role: network-admin
+    no_password: true
+
+# OOB Management network default gateway.
+mgmt_gateway: 172.16.1.1
+mgmt_interface: Management1
+mgmt_interface_vrf: MGMT
+
+# DNS Server
+name_servers:
+  - 1.1.1.1
+  - 8.8.8.8
+
+ntp:
+  servers:
+  - name: time.google.com
+    preferred: true
+    vrf: MGMT
+    iburst: true
+
+
+design:
+  type: mpls
+
+# Common AVD group variables
+fabric_name: FABRIC
+
+# Define underlay and overlay routing protocol to be used
+underlay_routing_protocol: isis-sr
+overlay_routing_protocol: ibgp
+
+# BGP peer groups passwords
+bgp_peer_groups:
+  # all passwords set to "arista"
+  mpls_overlay_peers:
+    password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+  rr_overlay_peers:
+    password: $1c$G8BQN0ezkiJOX2cuAYpsEA==
+
+management_security:
+  password:
+    encryption_key_common: true
+
+daemon_terminattr:
+  smashexcludes: ale,flexCounter,hardware,kni,pulse,strata
+  cvaddrs:
+    - apiserver.cv-staging.corp.arista.io:443
+  cvauth:
+    method: token-secure
+    token_file: /tmp/cv-onboarding-token
+  cvvrf: MGMT
+  # ingestexclude: /Sysdb/cell/1/agent,/Sysdb/cell/2/agent
+  disable_aaa: true
