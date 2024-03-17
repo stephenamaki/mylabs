@@ -49,16 +49,156 @@ router_path_selection:
             - 10.255.255.2
 
   load_balance_policies:
-    - name: dps-lb-policy-default
+    - name: LB_DEFAULT_AVT_POLICY_DEFAULT
       path_groups:
         - name: TRANSIT1
         - name: TRANSIT2
+    - name: LB_DEFAULT_AVT_POLICY_CONTROL_PLANE
+      path_groups:
+        - name: TRANSIT1
+        - name: TRANSIT2
+    - name: LB_SITE_AVT_POLICY_DEFAULT
+      path_groups:
+        - name: TRANSIT1
+        - name: TRANSIT2
+  
   policies:
-    - name: dps-policy-default
+    - name: DEFAULT_AVT_POLICY_WITH_CP
       default_match:
-        load_balance: dps-lb-policy-default
+        load_balance: LB_DEFAULT_AVT_POLICY_DEFAULT
+      rules:
+      - id: 10
+        application_profile: APP_PROFILE_CONTROL_PLANE
+        load_balance: LB_DEFAULT_AVT_POLICY_CONTROL_PLANE
+    - name: SITE_TRAFFIC_AVT_POLICY
+      default_match:
+        load_balance: LB_SITE_AVT_POLICY_DEFAULT
+
   vrfs:
     - name: SITE_TRAFFIC
-      path_selection_policy: dps-policy-default
+      path_selection_policy: SITE_TRAFFIC_AVT_POLICY
     - name: default
-      path_selection_policy: dps-policy-default
+      path_selection_policy: DEFAULT_AVT_POLICY_WITH_CP
+
+#---------------------------  
+
+application_traffic_recognition:
+  application_profiles:
+  - name: APP_PROFILE_CONTROL_PLANE
+    applications:
+    - name: APP_CONTROL_PLANE
+  applications:
+    ipv4_applications:
+    - name: APP_CONTROL_PLANE
+      dest_prefix_set_name: PFX_PATHFINDERS
+  field_sets:
+    ipv4_prefixes:
+    - name: PFX_PATHFINDERS
+      prefix_values:
+        - 10.255.0.1/32
+        - 10.255.0.2/32
+
+#-----------------------------------------------
+
+# !
+# router path-selection
+#    tcp mss ceiling ipv4 ingress
+#    !
+#    path-group internet id 101
+#       ipsec profile CP-PROFILE
+#       !
+#       local interface Ethernet1
+#          stun server-profile internet-cvn03-PF1-Ethernet1
+#       !
+#       peer dynamic
+#       !
+#       peer static router-ip 192.168.11.1
+#          name cvn03-PF1
+#          ipv4 address 172.202.1.6
+#    !
+#    load-balance policy LB_DEFAULT_AVT_POLICY_CONTROL_PLANE
+#       path-group internet
+#    !
+#    load-balance policy LB_DEFAULT_AVT_POLICY_DEFAULT
+#       path-group internet
+#    !
+#    load-balance policy LB_PROD_AVT_POLICY_DEFAULT
+#       path-group internet
+#    !
+#    policy DEFAULT_AVT_POLICY_WITH_CP
+#       default-match
+#          load-balance LB_DEFAULT_AVT_POLICY_DEFAULT
+#       !
+#       10 application-profile APP_PROFILE_CONTROL_PLANE
+#          load-balance LB_DEFAULT_AVT_POLICY_CONTROL_PLANE
+#    !
+#    policy PROD_AVT_POLICY
+#       default-match
+#          load-balance LB_PROD_AVT_POLICY_DEFAULT
+#    !
+#    vrf default
+#       path-selection-policy DEFAULT_AVT_POLICY-WITH-CP
+#    !
+#    vrf prod
+#       path-selection-policy PROD_AVT_POLICY
+# !
+
+
+
+#-----------------------------------------------
+
+# router_path_selection:
+#   path_groups:
+#     - name: TRANSIT1
+#       ipsec_profile: AUTOVPN_TUNNEL
+#       local_interfaces:
+#         - name: Ethernet1
+#           stun:
+#             server_profiles: 
+#               - PROFILE1
+#               - PROFILE2
+#       dynamic_peers:
+#         enabled: true
+#       static_peers: 
+#         - router_ip: 10.255.0.1
+#           name: DC-RR1
+#           ipv4_addresses:
+#             - 10.255.255.1
+#         - router_ip: 10.255.0.2
+#           name: DC-RR1
+#           ipv4_addresses:
+#             - 10.255.255.2
+#     - name: TRANSIT2
+#       ipsec_profile: AUTOVPN_TUNNEL
+#       local_interfaces:
+#         - name: Ethernet2
+#           stun:
+#             server_profiles: 
+#               - PROFILE1
+#               - PROFILE2
+#       dynamic_peers:
+#         enabled: true
+#       static_peers: 
+#         - router_ip: 10.255.0.1
+#           name: DC-RR1
+#           ipv4_addresses:
+#             - 10.255.255.1
+#         - router_ip: 10.255.0.2
+#           name: DC-RR1
+#           ipv4_addresses:
+#             - 10.255.255.2
+
+#   load_balance_policies:
+#     - name: DPS_LB_POLICY_DEFAULT
+#       path_groups:
+#         - name: TRANSIT1
+#         - name: TRANSIT2
+#   policies:
+#     - name: DPS_POLICY_DEFAULT
+#       default_match:
+#         load_balance: DPS_LB_POLICY_DEFAULT
+#   vrfs:
+#     - name: SITE_TRAFFIC
+#       path_selection_policy: DPS_POLICY_DEFAULT
+#     - name: default
+#       path_selection_policy: DPS_POLICY_DEFAULT

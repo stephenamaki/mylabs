@@ -12,6 +12,8 @@ ethernet_interfaces:
     type: routed
     shutdown: false
     ip_address: {{ eth1_ip_address }}
+    flow_tracker:
+      hardware: WAN_FLOW_TRACKER
   - name: Ethernet2
     description: SITE_TRAFFIC
     type: routed

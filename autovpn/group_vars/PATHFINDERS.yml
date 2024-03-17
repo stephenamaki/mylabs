@@ -11,72 +11,128 @@ router_path_selection:
       ipsec_profile: AUTOVPN_TUNNEL
       local_interfaces:
         - name: Ethernet1
+
   load_balance_policies:
-    - name: dps-lb-policy-default
+    - name: LB_DEFAULT_AVT_POLICY_DEFAULT
       path_groups:
         - name: TRANSIT1
+        - name: TRANSIT2
+    - name: LB_DEFAULT_AVT_POLICY_CONTROL_PLANE
+      path_groups:
+        - name: TRANSIT1
+        - name: TRANSIT2
+    - name: LB_SITE_AVT_POLICY_DEFAULT
+      path_groups:
+        - name: TRANSIT1
+        - name: TRANSIT2
+  
   policies:
-    - name: dps-policy-default
+    - name: DEFAULT_AVT_POLICY_WITH_CP
       default_match:
-        load_balance: dps-lb-policy-default
-  # policies:
-  #   - name: dps-policy-default
-  #     rules:
-  #     - id: 10
-  #       application_profile: APP-PROFILE-CONTROL-PLANE
-  #       load_balance: dps-lb-policy-default
-  vrfs:
-    - name: default
-      path_selection_policy: dps-policy-default
-    - name: SITE_TRAFFIC
-      path_selection_policy: dps-policy-default
+        load_balance: LB_DEFAULT_AVT_POLICY_DEFAULT
+      rules:
+      - id: 10
+        application_profile: APP_PROFILE_CONTROL_PLANE
+        load_balance: LB_DEFAULT_AVT_POLICY_CONTROL_PLANE
+    - name: SITE_TRAFFIC_AVT_POLICY
+      default_match:
+        load_balance: LB_SITE_AVT_POLICY_DEFAULT
 
-# application_traffic_recognition:
-#   application_profiles:
-#   - name: APP-PROFILE-CONTROL-PLANE
-#     applications:
-#     - name: APP-CONTROL-PLANE
-#   applications:
-#     ipv4_applications:
-#     - name: APP-CONTROL-PLANE
-#       src_prefix_set_name: PFX-LOCAL-VTEP-IP
-#   field_sets:
-#     ipv4_prefixes:
-#     - name: PFX-LOCAL-VTEP-IP
-#       prefix_values:
-#       - 10.255.1.1/32
-#       - 10.255.1.2/32
+  vrfs:
+    - name: SITE_TRAFFIC
+      path_selection_policy: SITE_TRAFFIC_AVT_POLICY
+    - name: default
+      path_selection_policy: DEFAULT_AVT_POLICY_WITH_CP
 
 #---------------------------  
+
+application_traffic_recognition:
+  application_profiles:
+  - name: APP_PROFILE_CONTROL_PLANE
+    applications:
+    - name: APP_CONTROL_PLANE
+  applications:
+    ipv4_applications:
+    - name: APP_CONTROL_PLANE
+      src_prefix_set_name: PFX_LOCAL_VTEP_IP
+  field_sets:
+    ipv4_prefixes:
+    - name: PFX_LOCAL_VTEP_IP
+      prefix_values:
+        - 10.255.0.1/32
+
+#---------------------------  
+
+wan_virtual_topologies:
+  vrfs:
+    - name: default
+      policy: DEFAULT_AVT_POLICY
+      wan_vni: 101
+    - name: SITE_TRAFFIC
+      policy: SITE_AVT_POLICY
+      wan_vni: 102
+  policies:
+    - name: DEFAULT_AVT_POLICY
+      default_virtual_topology:
+        path_groups:
+          - names: [TRANSIT1, TRANSIT2]
+            preference: preferred
+    - name: SITE_AVT_POLICY
+      default_virtual_topology:
+        path_groups:
+          - names: [TRANSIT1, TRANSIT2]
+            preference: preferred
+
+#---------------------------  
+
+#   !
+#    load-balance policy LB-DEFAULT-AVT-POLICY-CONTROL-PLANE
+#       path-group internet
+#    !
+#    load-balance policy LB-DEFAULT-AVT-POLICY-DEFAULT
+#       path-group internet
+#    !
+#    load-balance policy LB-PROD-AVT-POLICY-DEFAULT
+#       path-group internet
+#    !
+#    policy DEFAULT-AVT-POLICY-WITH-CP
+#       default-match
+#          load-balance LB-DEFAULT-AVT-POLICY-DEFAULT
+#       !
+#       10 application-profile APP-PROFILE-CONTROL-PLANE
+#          load-balance LB-DEFAULT-AVT-POLICY-CONTROL-PLANE
+#    !
+#    policy PROD-AVT-POLICY
+#       default-match
+#          load-balance LB-PROD-AVT-POLICY-DEFAULT
+#    !
+#    vrf default
+#       path-selection-policy DEFAULT-AVT-POLICY-WITH-CP
+#    !
+#    vrf prod
+#       path-selection-policy PROD-AVT-POLICY
+# !
+
+#---------------------------  
+
 # router_path_selection:
-#   tcp_mss_ceiling:
-#     ipv4_segment_size: auto
+#   peer_dynamic_source: 'stun'
 #   path_groups:
-#   - name: TRANSIT1
-#     id: 101
-#     local_interfaces:
-#     - name: Ethernet1
-#     ipsec_profile: CP_AUTOVPN_TUNNEL
-#   - name: TRANSIT2
-#     id: 102
-#   peer_dynamic_source: stun
+#     - name: TRANSIT1
+#       ipsec_profile: AUTOVPN_TUNNEL
+#       local_interfaces:
+#         - name: Ethernet1
 #   load_balance_policies:
-#   - name: LB-DEFAULT-POLICY-CONTROL-PLANE
-#     path_groups:
-#     - name: TRANSIT1
-#     - name: TRANSIT2
-#   - name: LB-DEFAULT-POLICY-DEFAULT
-#     path_groups:
-#     - name: TRANSIT1
-#     - name: TRANSIT2
+#     - name: DPS_LB_POLICY_DEFAULT
+#       path_groups:
+#         - name: TRANSIT1
 #   policies:
-#   - name: DEFAULT-POLICY-WITH-CP
-#     rules:
-#     - id: 10
-#       application_profile: APP-PROFILE-CONTROL-PLANE
-#       load_balance: LB-DEFAULT-POLICY-CONTROL-PLANE
-#     default_match:
-#       load_balance: LB-DEFAULT-POLICY-DEFAULT
+#     - name: DPS_POLICY_DEFAULT
+#       default_match:
+#         load_balance: DPS_LB_POLICY_DEFAULT
 #   vrfs:
-#   - name: default
-#     path_selection_policy: DEFAULT-POLICY-WITH-CP
+#     - name: default
+#       path_selection_policy: DPS_POLICY_DEFAULT
+#     - name: SITE_TRAFFIC
+#       path_selection_policy: DPS_POLICY_DEFAULT
+

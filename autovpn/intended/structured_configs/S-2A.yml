@@ -13,12 +13,16 @@ ethernet_interfaces:
     shutdown: false
     ip_address: 'dhcp'
     dhcp_client_accept_default_route: true
+    flow_tracker:
+      hardware: WAN_FLOW_TRACKER
   - name: Ethernet2
     description: TRANSIT2
     type: routed
     shutdown: false
     ip_address: 'dhcp'
     dhcp_client_accept_default_route: true
+    flow_tracker:
+      hardware: WAN_FLOW_TRACKER
   - name: Ethernet3
     description: SITE_TRAFFIC
     type: routed

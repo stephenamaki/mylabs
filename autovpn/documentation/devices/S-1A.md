@@ -12,6 +12,7 @@
   - [AAA Authorization](#aaa-authorization)
 - [Monitoring](#monitoring)
   - [TerminAttr Daemon](#terminattr-daemon)
+  - [Flow Tracking](#flow-tracking)
 - [IP Security](#ip-security)
   - [IKE policies](#ike-policies)
   - [Security Association policies](#security-association-policies)
@@ -34,6 +35,11 @@
 - [VRF Instances](#vrf-instances)
   - [VRF Instances Summary](#vrf-instances-summary)
   - [VRF Instances Device Configuration](#vrf-instances-device-configuration)
+- [Application Traffic Recognition](#application-traffic-recognition)
+  - [Applications](#applications)
+  - [Application Profiles](#application-profiles)
+  - [Field Sets](#field-sets)
+  - [Router Application-Traffic-Recognition Device Configuration](#router-application-traffic-recognition-device-configuration)
   - [Router Path-selection](#router-path-selection)
 - [STUN](#stun)
   - [STUN Client](#stun-client)
@@ -182,6 +188,37 @@ daemon TerminAttr
    no shutdown
 ```
 
+### Flow Tracking
+
+#### Flow Tracking Hardware
+
+##### Trackers Summary
+
+| Tracker Name | Record Export On Inactive Timeout | Record Export On Interval | Number of Exporters | Applied On |
+| ------------ | --------------------------------- | ------------------------- | ------------------- | ---------- |
+| WAN_FLOW_TRACKER | 70000 | 5000 | 1 | Ethernet1<br>Ethernet2 |
+
+##### Exporters Summary
+
+| Tracker Name | Exporter Name | Collector IP/Host | Collector Port | Local Interface |
+| ------------ | ------------- | ----------------- | -------------- | --------------- |
+| WAN_FLOW_TRACKER | EXPORTER | - | - | Loopback0 |
+
+#### Flow Tracking Device Configuration
+
+```eos
+!
+flow tracking hardware
+   tracker WAN_FLOW_TRACKER
+      record export on inactive timeout 70000
+      record export on interval 5000
+      exporter EXPORTER
+         collector 127.0.0.1
+         local interface Loopback0
+         template interval 5000
+   no shutdown
+```
+
 ## IP Security
 
 ### IKE policies
@@ -239,7 +276,7 @@ ip security
 
 | Interface | IP address | Shutdown | MTU | Flow tracker(s) | TCP MSS Ceiling |
 | --------- | ---------- | -------- | --- | --------------- | --------------- |
-| Dps1 | - | False | - |  |  |
+| Dps1 | - | False | - | Hardware: WAN_FLOW_TRACKER |  |
 
 #### DPS Interfaces Device Configuration
 
@@ -247,6 +284,7 @@ ip security
 !
 interface Dps1
    no shutdown
+   flow tracker hardware WAN_FLOW_TRACKER
 ```
 
 ### Ethernet Interfaces
@@ -276,6 +314,7 @@ interface Ethernet1
    description TRANSIT1
    no shutdown
    no switchport
+   flow tracker hardware WAN_FLOW_TRACKER
    ip address dhcp
    dhcp client accept default-route
 !
@@ -283,6 +322,7 @@ interface Ethernet2
    description TRANSIT2
    no shutdown
    no switchport
+   flow tracker hardware WAN_FLOW_TRACKER
    ip address dhcp
    dhcp client accept default-route
 !
@@ -550,6 +590,48 @@ vrf instance MGMT
 vrf instance SITE_TRAFFIC
 ```
 
+## Application Traffic Recognition
+
+### Applications
+
+#### IPv4 Applications
+
+| Name | Source Prefix | Destination Prefix | Protocols | Protocol Ranges | TCP Source Port Set | TCP Destination Port Set | UDP Source Port Set | UDP Destination Port Set |
+| ---- | ------------- | ------------------ | --------- | --------------- | ------------------- | ------------------------ | ------------------- | ------------------------ |
+| APP_CONTROL_PLANE | - | PFX_PATHFINDERS | - | - | - | - | - | - |
+
+### Application Profiles
+
+#### Application Profile Name APP_PROFILE_CONTROL_PLANE
+
+| Type | Name | Service |
+| ---- | ---- | ------- |
+| application | APP_CONTROL_PLANE | - |
+
+### Field Sets
+
+#### IPv4 Prefix Sets
+
+| Name | Prefixes |
+| ---- | -------- |
+| PFX_PATHFINDERS | 10.255.0.1/32<br>10.255.0.2/32 |
+
+### Router Application-Traffic-Recognition Device Configuration
+
+```eos
+!
+application traffic recognition
+   !
+   application ipv4 APP_CONTROL_PLANE
+      destination prefix field-set PFX_PATHFINDERS
+   !
+   application-profile APP_PROFILE_CONTROL_PLANE
+      application APP_CONTROL_PLANE
+   !
+   field-set ipv4 prefix PFX_PATHFINDERS
+      10.255.0.1/32 10.255.0.2/32
+```
+
 ### Router Path-selection
 
 #### Path Groups
@@ -612,22 +694,31 @@ vrf instance SITE_TRAFFIC
 
 | Policy Name | Jitter (ms) | Latency (ms) | Loss Rate (%) | Path Groups (priority) | Lowest Hop Count |
 | ----------- | ----------- | ------------ | ------------- | ---------------------- | ---------------- |
-| dps-lb-policy-default | - | - | - | TRANSIT1 (1)<br>TRANSIT2 (1) | False |
+| LB_DEFAULT_AVT_POLICY_CONTROL_PLANE | - | - | - | TRANSIT1 (1)<br>TRANSIT2 (1) | False |
+| LB_DEFAULT_AVT_POLICY_DEFAULT | - | - | - | TRANSIT1 (1)<br>TRANSIT2 (1) | False |
+| LB_SITE_AVT_POLICY_DEFAULT | - | - | - | TRANSIT1 (1)<br>TRANSIT2 (1) | False |
 
 #### DPS Policies
 
-##### DPS Policy dps-policy-default
+##### DPS Policy DEFAULT_AVT_POLICY_WITH_CP
 
 | Rule ID | Application profile | Load-balance policy |
 | ------- | ------------------- | ------------------- |
-| Default Match | - | dps-lb-policy-default |
+| Default Match | - | LB_DEFAULT_AVT_POLICY_DEFAULT |
+| 10 | APP_PROFILE_CONTROL_PLANE | LB_DEFAULT_AVT_POLICY_CONTROL_PLANE |
+
+##### DPS Policy SITE_TRAFFIC_AVT_POLICY
+
+| Rule ID | Application profile | Load-balance policy |
+| ------- | ------------------- | ------------------- |
+| Default Match | - | LB_SITE_AVT_POLICY_DEFAULT |
 
 #### VRFs Configuration
 
 | VRF name | DPS policy |
 | -------- | ---------- |
-| default | dps-policy-default |
-| SITE_TRAFFIC | dps-policy-default |
+| default | DEFAULT_AVT_POLICY_WITH_CP |
+| SITE_TRAFFIC | SITE_TRAFFIC_AVT_POLICY |
 
 #### Router Path-selection Device Configuration
 
@@ -667,19 +758,33 @@ router path-selection
          name DC-RR1
          ipv4 address 10.255.255.2
    !
-   load-balance policy dps-lb-policy-default
+   load-balance policy LB_DEFAULT_AVT_POLICY_CONTROL_PLANE
       path-group TRANSIT1
       path-group TRANSIT2
    !
-   policy dps-policy-default
+   load-balance policy LB_DEFAULT_AVT_POLICY_DEFAULT
+      path-group TRANSIT1
+      path-group TRANSIT2
+   !
+   load-balance policy LB_SITE_AVT_POLICY_DEFAULT
+      path-group TRANSIT1
+      path-group TRANSIT2
+   !
+   policy DEFAULT_AVT_POLICY_WITH_CP
       default-match
-         load-balance dps-lb-policy-default
+         load-balance LB_DEFAULT_AVT_POLICY_DEFAULT
+      10 application-profile APP_PROFILE_CONTROL_PLANE
+         load-balance LB_DEFAULT_AVT_POLICY_CONTROL_PLANE
+   !
+   policy SITE_TRAFFIC_AVT_POLICY
+      default-match
+         load-balance LB_SITE_AVT_POLICY_DEFAULT
    !
    vrf default
-      path-selection-policy dps-policy-default
+      path-selection-policy DEFAULT_AVT_POLICY_WITH_CP
    !
    vrf SITE_TRAFFIC
-      path-selection-policy dps-policy-default
+      path-selection-policy SITE_TRAFFIC_AVT_POLICY
 ```
 
 ## STUN
