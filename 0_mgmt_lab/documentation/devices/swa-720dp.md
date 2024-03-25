@@ -1,14 +1,18 @@
-# switch-mgmt
+# swa-720dp
 
 ## Table of Contents
 
 - [Management](#management)
+  - [Management Interfaces](#management-interfaces)
   - [IP Name Servers](#ip-name-servers)
   - [NTP](#ntp)
   - [Management API HTTP](#management-api-http)
 - [Authentication](#authentication)
   - [Local Users](#local-users)
   - [AAA Authorization](#aaa-authorization)
+- [DHCP Server](#dhcp-server)
+  - [DHCP Servers Summary](#dhcp-servers-summary)
+  - [DHCP Server Configuration](#dhcp-server-configuration)
 - [Monitoring](#monitoring)
   - [TerminAttr Daemon](#terminattr-daemon)
 - [VLANs](#vlans)
@@ -21,10 +25,43 @@
 - [Routing](#routing)
   - [Service Routing Protocols Model](#service-routing-protocols-model)
   - [IP Routing](#ip-routing)
+  - [IPv6 Routing](#ipv6-routing)
   - [Static Routes](#static-routes)
+- [ACL](#acl)
+  - [IP Access-lists](#ip-access-lists)
+- [VRF Instances](#vrf-instances)
+  - [VRF Instances Summary](#vrf-instances-summary)
+  - [VRF Instances Device Configuration](#vrf-instances-device-configuration)
 - [EOS CLI Device Configuration](#eos-cli-device-configuration)
 
 ## Management
+
+### Management Interfaces
+
+#### Management Interfaces Summary
+
+##### IPv4
+
+| Management Interface | Description | Type | VRF | IP Address | Gateway |
+| -------------------- | ----------- | ---- | --- | ---------- | ------- |
+| Management1 | oob_management | oob | MGMT | 192.168.224.203/24 | 192.168.224.1 |
+
+##### IPv6
+
+| Management Interface | Description | Type | VRF | IPv6 Address | IPv6 Gateway |
+| -------------------- | ----------- | ---- | --- | ------------ | ------------ |
+| Management1 | oob_management | oob | MGMT | - | - |
+
+#### Management Interfaces Device Configuration
+
+```eos
+!
+interface Management1
+   description oob_management
+   no shutdown
+   vrf MGMT
+   ip address 192.168.224.203/24
+```
 
 ### IP Name Servers
 
@@ -34,12 +71,16 @@
 | ----------- | --- | -------- |
 | 1.1.1.1 | default | - |
 | 8.8.8.8 | default | - |
+| 1.1.1.1 | MGMT | - |
+| 8.8.8.8 | MGMT | - |
 
 #### IP Name Servers Device Configuration
 
 ```eos
 ip name-server vrf default 1.1.1.1
+ip name-server vrf MGMT 1.1.1.1
 ip name-server vrf default 8.8.8.8
+ip name-server vrf MGMT 8.8.8.8
 ```
 
 ### NTP
@@ -72,6 +113,7 @@ ntp server vrf MGMT time.google.com prefer iburst
 | VRF Name | IPv4 ACL | IPv6 ACL |
 | -------- | -------- | -------- |
 | default | - | - |
+| MGMT | - | - |
 
 #### Management API HTTP Device Configuration
 
@@ -82,6 +124,9 @@ management api http-commands
    no shutdown
    !
    vrf default
+      no shutdown
+   !
+   vrf MGMT
       no shutdown
 ```
 
@@ -121,6 +166,37 @@ aaa authorization exec default local
 !
 ```
 
+## DHCP Server
+
+### DHCP Servers Summary
+
+| DHCP Server Enabled | VRF | IPv4 DNS Domain | IPv6 DNS Domain |
+| ------------------- | --- | --------------- | --------------- |
+| True | default | arista.com | - |
+
+#### VRF default DHCP Server
+
+##### Subnets
+
+| Subnet | Name | DNS Servers | Default Gateway | Lease Time | Ranges |
+| ------ | ---- | ----------- | --------------- | ---------- | ------ |
+| 192.168.87.0/24 | - | 8.8.8.8, 4.2.2.2 | 192.168.87.1 | 1 days, 0 hours, 0 minutes | 192.168.87.165-192.168.87.245 |
+
+### DHCP Server Configuration
+
+```eos
+!
+dhcp server
+   dns domain name ipv4 arista.com
+   !
+   subnet 192.168.87.0/24
+      !
+      range 192.168.87.165 192.168.87.245
+      dns server 8.8.8.8 4.2.2.2
+      lease time 1 days 0 hours 0 minutes
+      default-gateway 192.168.87.1
+```
+
 ## Monitoring
 
 ### TerminAttr Daemon
@@ -146,22 +222,14 @@ daemon TerminAttr
 
 | VLAN ID | Name | Trunk Groups |
 | ------- | ---- | ------------ |
-| 100 | VLAN_100 | - |
-| 101 | VLAN_101 | - |
-| 255 | VLAN_255 | - |
+| 87 | Local_VLAN | - |
 
 ### VLANs Device Configuration
 
 ```eos
 !
-vlan 100
-   name VLAN_100
-!
-vlan 101
-   name VLAN_101
-!
-vlan 255
-   name VLAN_255
+vlan 87
+   name Local_VLAN
 ```
 
 ## Interfaces
@@ -170,16 +238,15 @@ vlan 255
 
 #### Interface Profiles Summary
 
-- PORT_PROFILE
+- 720DP_PROFILE
 
 #### Interface Profiles Device Configuration
 
 ```eos
 !
-interface profile PORT_PROFILE
-   command description LAB Endpoints
-   command switchport mode trunk
-   command switchport trunk native vlan 100
+interface profile 720DP_PROFILE
+   command description Standard POE Port
+   command switchport access vlan 87
    command spanning-tree portfast
 ```
 
@@ -191,19 +258,49 @@ interface profile PORT_PROFILE
 
 | Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | Channel-Group |
 | --------- | ----------- | ---- | ----- | ----------- | ----------- | ------------- |
-| Ethernet1 |  gwy-rtr | trunk | - | - | - | - |
+| Ethernet1 |  Arista APs | access | 87 | - | - | - |
+| Ethernet2 |  Arista APs | access | 87 | - | - | - |
 
 *Inherited from Port-Channel Interface
+
+##### IPv4
+
+| Interface | Description | Type | Channel Group | IP Address | VRF |  MTU | Shutdown | ACL In | ACL Out |
+| --------- | ----------- | -----| ------------- | ---------- | ----| ---- | -------- | ------ | ------- |
+| Ethernet24 | Public_Internet | routed | - | 192.168.224.202/24 | default | - | False | - | - |
+
+##### IP NAT: Source Dynamic
+
+| Interface | Access List | NAT Type | Pool Name | Priority | Comment |
+| --------- | ----------- | -------- | --------- | -------- | ------- |
+| Ethernet24 | NAT_ACL | overload | - | 0 | - |
 
 #### Ethernet Interfaces Device Configuration
 
 ```eos
 !
 interface Ethernet1
-   description gwy-rtr
+   description Arista APs
    no shutdown
-   switchport mode trunk
+   switchport access vlan 87
+   switchport mode access
    switchport
+   spanning-tree portfast
+!
+interface Ethernet2
+   description Arista APs
+   no shutdown
+   switchport access vlan 87
+   switchport mode access
+   switchport
+   spanning-tree portfast
+!
+interface Ethernet24
+   description Public_Internet
+   no shutdown
+   no switchport
+   ip address 192.168.224.202/24
+   ip nat source dynamic access-list NAT_ACL overload
 ```
 
 ### VLAN Interfaces
@@ -212,24 +309,24 @@ interface Ethernet1
 
 | Interface | Description | VRF |  MTU | Shutdown |
 | --------- | ----------- | --- | ---- | -------- |
-| Vlan100 | LAB devices | default | - | False |
+| Vlan87 | Local_VLAN | default | - | False |
 
 ##### IPv4
 
 | Interface | VRF | IP Address | IP Address Virtual | IP Router Virtual Address | VRRP | ACL In | ACL Out |
 | --------- | --- | ---------- | ------------------ | ------------------------- | ---- | ------ | ------- |
-| Vlan100 |  default  |  172.16.1.250/24  |  -  |  -  |  -  |  -  |  -  |
+| Vlan87 |  default  |  192.168.87.1/24  |  -  |  -  |  -  |  -  |  -  |
 
 #### VLAN Interfaces Device Configuration
 
 ```eos
 !
-interface Vlan100
-   description LAB devices
+interface Vlan87
+   description Local_VLAN
    no shutdown
-   ip address 172.16.1.250/24
-   ip address 172.100.100.250/24 secondary
-   ip address 10.255.255.250/24 secondary
+   ip address 192.168.87.1/24
+   dhcp server ipv4
+
 ```
 
 ## Routing
@@ -250,13 +347,24 @@ service routing protocols model multi-agent
 | VRF | Routing Enabled |
 | --- | --------------- |
 | default | True |
+| MGMT | True |
 
 #### IP Routing Device Configuration
 
 ```eos
 !
 ip routing
+ip routing vrf MGMT
 ```
+
+### IPv6 Routing
+
+#### IPv6 Routing Summary
+
+| VRF | Routing Enabled |
+| --- | --------------- |
+| default | False |
+| MGMT | false |
 
 ### Static Routes
 
@@ -264,13 +372,43 @@ ip routing
 
 | VRF | Destination Prefix | Next Hop IP | Exit interface | Administrative Distance | Tag | Route Name | Metric |
 | --- | ------------------ | ----------- | -------------- | ----------------------- | --- | ---------- | ------ |
-| default | 0.0.0.0/0 | 172.16.1.1 | - | 1 | - | - | - |
+| default | 0.0.0.0/0 | 192.168.224.1 | - | 1 | - | - | - |
+| MGMT | 0.0.0.0/0 | 192.168.224.1 | - | 1 | - | - | - |
 
 #### Static Routes Device Configuration
 
 ```eos
 !
-ip route 0.0.0.0/0 172.16.1.1
+ip route 0.0.0.0/0 192.168.224.1
+ip route vrf MGMT 0.0.0.0/0 192.168.224.1
+```
+
+## ACL
+
+### IP Access-lists
+
+#### IP Access-lists Device Configuration
+
+```eos
+!
+ip access-list NAT_ACL
+   10 deny ip 192.168.87.0/24 192.168.224.0/24
+   50 permit ip any any
+```
+
+## VRF Instances
+
+### VRF Instances Summary
+
+| VRF Name | IP Routing |
+| -------- | ---------- |
+| MGMT | enabled |
+
+### VRF Instances Device Configuration
+
+```eos
+!
+vrf instance MGMT
 ```
 
 ## EOS CLI Device Configuration
@@ -278,11 +416,7 @@ ip route 0.0.0.0/0 172.16.1.1
 ```eos
 !
 !
-interface Ethernet2-8
-  profile PORT_PROFILE
-interface Ethernet2
-  description Cloud1
-interface Ethernet8
-  description ZTPSserver
+interface Ethernet3-23
+  profile 720DP_PROFILE
 
 ```

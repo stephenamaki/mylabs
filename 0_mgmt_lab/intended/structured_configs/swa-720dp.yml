@@ -1,0 +1,129 @@
+management_interfaces:
+- name: Management1
+  description: oob_management
+  shutdown: false
+  vrf: MGMT
+  ip_address: 192.168.224.203/24
+  gateway: 192.168.224.1
+  type: oob
+management_api_http:
+  enable_vrfs:
+  - name: MGMT
+    # shutdown: false 
+  - name: default
+    # shutdown: false 
+  enable_https: true
+ip_name_servers:
+  - ip_address: 1.1.1.1
+    vrf: default
+  - ip_address: 8.8.8.8
+    vrf: default
+  - ip_address: 1.1.1.1
+    vrf: MGMT
+  - ip_address: 8.8.8.8
+    vrf: MGMT
+ethernet_interfaces:
+  - name: Ethernet24
+    description: Public_Internet
+    type: routed
+    shutdown: false
+    ip_address: 192.168.224.202/24
+    ip_nat:
+      source:
+        dynamic:
+          - access_list: NAT_ACL
+            nat_type: "overload"
+  - name: Ethernet1
+    description: Arista APs
+    type: switched
+    shutdown: false
+    mode: access 
+    vlans: 87
+    spanning_tree_portfast: edge
+  - name: Ethernet2
+    description: Arista APs
+    type: switched
+    shutdown: false
+    mode: access 
+    vlans: 87
+    spanning_tree_portfast: edge
+vlan_interfaces:
+  - name: Vlan87
+    description: Local_VLAN
+    shutdown: false 
+    ip_address: 192.168.87.1/24
+    # dhcp_server_ipv4: true 
+    eos_cli: |
+      dhcp server ipv4
+vlans:
+  - id: 87
+    name: Local_VLAN
+vrfs:
+  - name: MGMT
+    ip_routing: true
+static_routes:
+  - vrf: default
+    destination_address_prefix: 0.0.0.0/0
+    gateway: 192.168.224.1
+  - vrf: MGMT
+    destination_address_prefix: 0.0.0.0/0
+    gateway: 192.168.224.1
+
+ip_access_lists:
+  - name: NAT_ACL
+    # counters_per_entry: true
+    entries:
+      - sequence: 10
+        action: "deny"
+        protocol: ip
+        source: 192.168.87.0/24
+        destination: 192.168.224.0/24
+      - sequence: 50
+        action: "permit"
+        protocol: ip
+        source: any
+        destination: any
+
+dhcp_servers:
+  - disabled: false
+    vrf: default
+    dns_domain_name_ipv4: arista.com
+    subnets:
+      - subnet: 192.168.87.0/24
+        default_gateway: 192.168.87.1
+        dns_servers:
+          - 8.8.8.8
+          - 4.2.2.2
+        ranges:
+          - start: 192.168.87.165
+            end: 192.168.87.245
+        lease_time:
+          days: 1
+          hours: 0
+          minutes: 0
+
+interface_profiles:
+  - name: 720DP_PROFILE
+    commands:
+      - description Standard POE Port
+      - switchport access vlan 87
+      - spanning-tree portfast
+eos_cli: |
+  !
+  interface Ethernet3-23
+    profile 720DP_PROFILE
+
+# eos_cli: |
+#   !
+#   dhcp server
+#     disabled
+#     dns domain name ipv4 arista.com
+#     lease time ipv4 1 days 0 hours 0 minutes
+#     dns server ipv4 8.8.8.8 4.2.2.2
+#     !
+#     subnet 192.168.87.0/24
+#       range 192.168.87.165 192.168.87.245
+#       default-gateway 192.168.87.1
+#     !
+#   !
+
