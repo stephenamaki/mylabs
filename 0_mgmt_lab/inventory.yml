@@ -1,20 +1,26 @@
 ---
 all:
   children:
-    FABRIC:
+    CVAAS:
+      hosts:
+        cvaas:
+        
+    LAB:
       children:
-        AUTOVPN:
+        LAB_MGMT:
           children:
-            MGMT_DEVICES:
+            EVE_NG:
               hosts:
                 gwy-rtr:
                   ansible_host: 192.168.224.104
-                swa-720dp:
-                  ansible_host: 192.168.224.202
                 switch-mgmt:
                   ansible_host: 172.16.1.250
+            HARDWARE:
+              hosts:
+                720dp-swa:
+                  ansible_host: 192.168.224.202
 
     NETWORK_PORTS:
       children:
-        # swa-720dp:
+        # 720dp-swa:
         # switch-mgmt:

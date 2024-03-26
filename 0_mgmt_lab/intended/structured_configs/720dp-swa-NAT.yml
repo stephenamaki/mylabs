@@ -112,18 +112,32 @@ eos_cli: |
   !
   interface Ethernet3-23
     profile 720DP_PROFILE
+  !
+  monitor connectivity
+    no shutdown
+    !
+    host google_dns
+        ip 8.8.8.8
+        icmp echo size 36
+    !
+    host ubuntu_linux
+        ip 192.168.224.101
+        icmp echo size 36
+    !
+    host cvaas
+        url https://www.cv-staging.corp.arista.io
+        icmp echo size 36
+  !
 
-# eos_cli: |
-#   !
-#   dhcp server
-#     disabled
-#     dns domain name ipv4 arista.com
-#     lease time ipv4 1 days 0 hours 0 minutes
-#     dns server ipv4 8.8.8.8 4.2.2.2
-#     !
-#     subnet 192.168.87.0/24
-#       range 192.168.87.165 192.168.87.245
-#       default-gateway 192.168.87.1
-#     !
-#   !
 
+daemon_terminattr:
+  cvaddrs:
+  # - 172.16.1.3:9910
+  - apiserver.cv-staging.corp.arista.io:443
+  cvauth:
+    method: token-secure
+    token_file: /tmp/cv-onboarding-token
+  cvvrf: MGMT
+  smashexcludes: ale,flexCounter,hardware,kni,pulse,strata
+  # ingestexclude: /Sysdb/cell/1/agent,/Sysdb/cell/2/agent
+  disable_aaa: true

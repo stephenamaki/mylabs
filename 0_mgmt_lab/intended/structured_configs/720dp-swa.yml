@@ -1,0 +1,83 @@
+management_interfaces:
+- name: Management1
+  description: oob_management
+  shutdown: false
+  vrf: MGMT
+  ip_address: 192.168.224.203/24
+  gateway: 192.168.224.1
+  type: oob
+management_api_http:
+  enable_vrfs:
+  - name: MGMT
+  - name: default
+  enable_https: true
+ip_name_servers:
+  - ip_address: 1.1.1.1
+    vrf: default
+  - ip_address: 8.8.8.8
+    vrf: default
+  - ip_address: 1.1.1.1
+    vrf: MGMT
+  - ip_address: 8.8.8.8
+    vrf: MGMT
+vlan_interfaces:
+  - name: Vlan224
+    description: Public_Internet
+    shutdown: false 
+    ip_address: 192.168.224.202/24
+    # dhcp_server_ipv4: true 
+vlans:
+  - id: 224
+    name: Public_Internet
+vrfs:
+  - name: MGMT
+    ip_routing: true
+static_routes:
+  - vrf: default
+    destination_address_prefix: 0.0.0.0/0
+    gateway: 192.168.224.1
+  - vrf: MGMT
+    destination_address_prefix: 0.0.0.0/0
+    gateway: 192.168.224.1
+
+interface_profiles:
+  - name: PORT_PROFILE
+    commands:
+      - description Standard POE Port
+      - switchport access vlan 224
+      - spanning-tree portfast
+eos_cli: |
+  !
+  interface Ethernet1-24
+    profile PORT_PROFILE
+  !
+  interface Ethernet1-2
+    description Arista_AP
+  !
+  interface Ethernet24
+    description Public_Internet
+  !
+  monitor connectivity
+    no shutdown
+    !
+    host google_dns
+        ip 8.8.8.8
+        icmp echo size 36
+    !
+    host cvaas
+        url https://www.cv-staging.corp.arista.io
+        icmp echo size 36
+  !
+
+
+daemon_terminattr:
+  cvaddrs:
+  # - 172.16.1.3:9910
+  - apiserver.cv-staging.corp.arista.io:443
+  cvauth:
+    method: token-secure
+    token_file: /tmp/cv-onboarding-token
+  # cvvrf: MGMT
+  smashexcludes: ale,flexCounter,hardware,kni,pulse,strata
+  # ingestexclude: /Sysdb/cell/1/agent,/Sysdb/cell/2/agent
+  disable_aaa: true

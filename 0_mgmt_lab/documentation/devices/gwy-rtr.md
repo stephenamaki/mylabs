@@ -2,123 +2,15 @@
 
 ## Table of Contents
 
-- [Management](#management)
-  - [IP Name Servers](#ip-name-servers)
-  - [NTP](#ntp)
-  - [Management API HTTP](#management-api-http)
-- [Authentication](#authentication)
-  - [Local Users](#local-users)
-  - [AAA Authorization](#aaa-authorization)
 - [DHCP Server](#dhcp-server)
   - [DHCP Server Interfaces](#dhcp-server-interfaces)
-- [Monitoring](#monitoring)
-  - [TerminAttr Daemon](#terminattr-daemon)
 - [Interfaces](#interfaces)
   - [Ethernet Interfaces](#ethernet-interfaces)
 - [Routing](#routing)
-  - [Service Routing Protocols Model](#service-routing-protocols-model)
-  - [IP Routing](#ip-routing)
   - [Static Routes](#static-routes)
 - [ACL](#acl)
   - [IP Access-lists](#ip-access-lists)
 - [EOS CLI Device Configuration](#eos-cli-device-configuration)
-
-## Management
-
-### IP Name Servers
-
-#### IP Name Servers Summary
-
-| Name Server | VRF | Priority |
-| ----------- | --- | -------- |
-| 1.1.1.1 | default | - |
-| 8.8.8.8 | default | - |
-
-#### IP Name Servers Device Configuration
-
-```eos
-ip name-server vrf default 1.1.1.1
-ip name-server vrf default 8.8.8.8
-```
-
-### NTP
-
-#### NTP Summary
-
-##### NTP Servers
-
-| Server | VRF | Preferred | Burst | iBurst | Version | Min Poll | Max Poll | Local-interface | Key |
-| ------ | --- | --------- | ----- | ------ | ------- | -------- | -------- | --------------- | --- |
-| time.google.com | MGMT | True | - | True | - | - | - | - | - |
-
-#### NTP Device Configuration
-
-```eos
-!
-ntp server vrf MGMT time.google.com prefer iburst
-```
-
-### Management API HTTP
-
-#### Management API HTTP Summary
-
-| HTTP | HTTPS | Default Services |
-| ---- | ----- | ---------------- |
-| False | True | - |
-
-#### Management API VRF Access
-
-| VRF Name | IPv4 ACL | IPv6 ACL |
-| -------- | -------- | -------- |
-| default | - | - |
-
-#### Management API HTTP Device Configuration
-
-```eos
-!
-management api http-commands
-   protocol https
-   no shutdown
-   !
-   vrf default
-      no shutdown
-```
-
-## Authentication
-
-### Local Users
-
-#### Local Users Summary
-
-| User | Privilege | Role | Disabled | Shell |
-| ---- | --------- | ---- | -------- | ----- |
-| admin | 15 | network-admin | False | - |
-| ansible | 15 | network-admin | False | - |
-
-#### Local Users Device Configuration
-
-```eos
-!
-username admin privilege 15 role network-admin nopassword
-username ansible privilege 15 role network-admin secret sha512 <removed>
-```
-
-### AAA Authorization
-
-#### AAA Authorization Summary
-
-| Type | User Stores |
-| ---- | ----------- |
-| Exec | local |
-
-Authorization for configuration commands is disabled.
-
-#### AAA Authorization Device Configuration
-
-```eos
-aaa authorization exec default local
-!
-```
 
 ## DHCP Server
 
@@ -127,25 +19,6 @@ aaa authorization exec default local
 | Interface name | DHCP IPv4 | DHCP IPv6 |
 | -------------- | --------- | --------- |
 | Ethernet2.100 | True | False |
-
-## Monitoring
-
-### TerminAttr Daemon
-
-#### TerminAttr Daemon Summary
-
-| CV Compression | CloudVision Servers | VRF | Authentication | Smash Excludes | Ingest Exclude | Bypass AAA |
-| -------------- | ------------------- | --- | -------------- | -------------- | -------------- | ---------- |
-| gzip | apiserver.cv-staging.corp.arista.io:443 | - | token-secure,/tmp/cv-onboarding-token | ale,flexCounter,hardware,kni,pulse,strata | - | True |
-
-#### TerminAttr Daemon Device Configuration
-
-```eos
-!
-daemon TerminAttr
-   exec /usr/bin/TerminAttr -cvaddr=apiserver.cv-staging.corp.arista.io:443 -cvauth=token-secure,/tmp/cv-onboarding-token -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -taillogs
-   no shutdown
-```
 
 ## Interfaces
 
@@ -216,30 +89,6 @@ interface Ethernet2.100
 
 ## Routing
 
-### Service Routing Protocols Model
-
-Multi agent routing protocol model enabled
-
-```eos
-!
-service routing protocols model multi-agent
-```
-
-### IP Routing
-
-#### IP Routing Summary
-
-| VRF | Routing Enabled |
-| --- | --------------- |
-| default | True |
-
-#### IP Routing Device Configuration
-
-```eos
-!
-ip routing
-```
-
 ### Static Routes
 
 #### Static Routes Summary
@@ -277,22 +126,14 @@ ip access-list NAT_ACL
 !
 !
 dhcp server
-  disabled
-  dns domain name ipv4 arista.com
-  lease time ipv4 1 days 0 hours 0 minutes
-  dns server ipv4 8.8.8.8 4.2.2.2
-  !
-  subnet 172.16.1.0/24
+ lease time ipv4 1 days 0 hours 0 minutes
+ dns domain name ipv4 arista.com
+ dns server ipv4 8.8.8.8 4.2.2.2
+ !
+ subnet 172.16.1.0/24
     range 172.16.1.165 172.16.1.245
     default-gateway 172.16.1.1
-    tftp server file http://172.16.1.2/bootfile
-  !
-  vendor-option ipv4 NTP
-    sub-option 42 type array ipv4-address data 192.5.41.40 192.5.41.41
-  !
-  vendor-option ipv4 vendorClassArista
-    sub-option 6 type string data "Arista"
-!
+    tftp server file tftp://172.16.1.2/bootstrap.py
 monitor connectivity
   no shutdown
   !

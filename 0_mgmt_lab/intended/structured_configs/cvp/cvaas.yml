@@ -1,0 +1,9 @@
+---
+cvp_devices:
+  - fqdn: 720dp-swa
+    parentContainerName: HARDWARE
+    configlets:
+      - CONFIGS_720dp-swa
+cvp_containers:
+  HARDWARE:
+    parentContainerName: Tenant

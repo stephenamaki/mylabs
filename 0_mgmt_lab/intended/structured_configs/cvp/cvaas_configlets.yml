@@ -1,0 +1,94 @@
+cvp_configlets:
+  CONFIGS_720dp-swa: "!RANCID-CONTENT-TYPE: arista\n!\ndaemon TerminAttr\n   exec
+    /usr/bin/TerminAttr -cvaddr=apiserver.cv-staging.corp.arista.io:443 -cvauth=token-secure,/tmp/cv-onboarding-token
+    -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -taillogs\n
+    \  no shutdown\n!\ninterface profile PORT_PROFILE\n   command description Standard
+    POE Port\n   command switchport access vlan 224\n   command spanning-tree portfast\n!\ntransceiver
+    qsfp default-mode 4x10G\n!\nhostname 720dp-swa\nip name-server vrf default 1.1.1.1\nip
+    name-server vrf MGMT 1.1.1.1\nip name-server vrf default 8.8.8.8\nip name-server
+    vrf MGMT 8.8.8.8\n!\nno enable password\nno aaa root\n!\nvlan 224\n   name Public_Internet\n!\nvrf
+    instance MGMT\n!\ninterface Management1\n   description oob_management\n   no
+    shutdown\n   vrf MGMT\n   ip address 192.168.224.203/24\n!\ninterface Vlan224\n
+    \  description Public_Internet\n   no shutdown\n   ip address 192.168.224.202/24\nip
+    routing vrf MGMT\n!\nip route 0.0.0.0/0 192.168.224.1\nip route vrf MGMT 0.0.0.0/0
+    192.168.224.1\n!\nmanagement api http-commands\n   protocol https\n   no shutdown\n
+    \  !\n   vrf default\n      no shutdown\n   !\n   vrf MGMT\n      no shutdown\n!\n!\ninterface
+    Ethernet1-24\n  profile PORT_PROFILE\n!\ninterface Ethernet1-2\n  description
+    Arista_AP\n!\ninterface Ethernet24\n  description Public_Internet\n!\nmonitor
+    connectivity\n  no shutdown\n  !\n  host google_dns\n      ip 8.8.8.8\n      icmp
+    echo size 36\n  !\n  host cvaas\n      url https://www.cv-staging.corp.arista.io\n
+    \     icmp echo size 36\n!\n\n!\nend\n"
+  CONFIGS_cvaas: '!RANCID-CONTENT-TYPE: arista
+
+    !
+
+    transceiver qsfp default-mode 4x10G
+
+    !
+
+    hostname cvaas
+
+    !
+
+    no enable password
+
+    no aaa root
+
+    !
+
+    end
+
+    '
+  CONFIGS_gwy-rtr: "!RANCID-CONTENT-TYPE: arista\n!\ntransceiver qsfp default-mode
+    4x10G\n!\nhostname gwy-rtr\n!\nno enable password\nno aaa root\n!\ninterface Ethernet1\n
+    \  description Public_Internet\n   no shutdown\n   no switchport\n   ip address
+    192.168.224.104/24\n   ip nat source dynamic access-list NAT_ACL overload\n   !\n
+    \  mac-address 00:00:00:22:41:04\n\n!\ninterface Ethernet2\n   description LAN_to_LAB_Devices\n
+    \  no shutdown\n   no switchport\n   !\n   mac-address 00:00:00:01:00:01\n\n!\ninterface
+    Ethernet2.100\n   description LAN_to_LAB_Devices\n   no shutdown\n   encapsulation
+    dot1q vlan 100\n   ip address 172.16.1.1/24\n   ip address 172.100.100.1/24 secondary\n
+    \  ip address 10.255.255.254/24 secondary\n   dhcp server ipv4\n   !\n   arp aging
+    timeout 60\n\n!\nip access-list NAT_ACL\n   10 deny ip 10.0.0.0/8 192.168.224.0/24\n
+    \  20 deny ip 172.16.1.0/24 192.168.224.0/24\n   30 deny ip 172.100.100.0/24 192.168.224.0/24\n
+    \  40 deny ip 10.255.255.0/24 192.168.224.0/24\n   50 permit ip any any\n!\nip
+    route 0.0.0.0/0 192.168.224.1\n!\n!\ndhcp server\n lease time ipv4 1 days 0 hours
+    0 minutes\n dns domain name ipv4 arista.com\n dns server ipv4 8.8.8.8 4.2.2.2\n
+    !\n subnet 172.16.1.0/24\n    range 172.16.1.165 172.16.1.245\n    default-gateway
+    172.16.1.1\n    tftp server file tftp://172.16.1.2/bootstrap.py\nmonitor connectivity\n
+    \ no shutdown\n  !\n  host google_dns\n      ip 8.8.8.8\n      icmp echo size
+    36\n  !\n  host ubuntu_linux\n      ip 192.168.224.101\n      icmp echo size 36\n
+    \ !\n  host host_001\n      ip 172.16.1.11\n      icmp echo size 36\n  !\n  host
+    host_002\n      ip 172.16.1.12\n      icmp echo size 36\n  !\n  host host_003\n
+    \     ip 172.16.1.101\n      icmp echo size 36\n  !\n  host host_004\n      ip
+    172.16.1.102\n      icmp echo size 36\n  !\n  host host_005\n      ip 172.16.1.103\n
+    \     icmp echo size 36\n  !\n  host host_006\n      ip 172.16.1.104\n      icmp
+    echo size 36\n  !\n  host host_007\n      ip 172.16.1.151\n      icmp echo size
+    36\n  !\n  host host_008\n      ip 172.16.1.152\n      icmp echo size 36\n  !\n
+    \ host host_009\n      ip 172.16.1.241\n      icmp echo size 36\n  !\n  host host_010\n
+    \     ip 172.16.1.242\n      icmp echo size 36\n  !\n  host host_011\n      ip
+    172.16.1.243\n      icmp echo size 36\n  !\n  host host_012\n      ip 172.16.1.244\n
+    \     icmp echo size 36\n  !\n  host host_013\n      ip 172.16.1.245\n      icmp
+    echo size 36\n  !\n  host host_014\n      ip 172.16.1.21\n      icmp echo size
+    36\n  !\n  host host_015\n      ip 172.16.1.22\n      icmp echo size 36\n  !\n
+    \ host host_016\n      ip 172.16.1.111\n      icmp echo size 36\n  !\n  host host_017\n
+    \     ip 172.16.1.112\n      icmp echo size 36\n  !\n  host host_018\n      ip
+    172.16.1.113\n      icmp echo size 36\n  !\n  host host_019\n      ip 172.16.1.114\n
+    \     icmp echo size 36\n  !\n  host host_020\n      ip 172.16.1.161\n      icmp
+    echo size 36\n  !\n  host host_021\n      ip 172.16.1.162\n      icmp echo size
+    36\n!\n\n!\nend\n"
+  CONFIGS_switch-mgmt: "!RANCID-CONTENT-TYPE: arista\n!\ninterface profile PORT_PROFILE\n
+    \  command description LAB Endpoints\n   command switchport mode trunk\n   command
+    switchport trunk native vlan 100\n   command spanning-tree portfast\n!\ntransceiver
+    qsfp default-mode 4x10G\n!\nhostname switch-mgmt\n!\nno enable password\nno aaa
+    root\n!\nvlan 100\n   name VLAN_100\n!\nvlan 101\n   name VLAN_101\n!\nvlan 255\n
+    \  name VLAN_255\n!\ninterface Ethernet1\n   description gwy-rtr\n   no shutdown\n
+    \  switchport mode trunk\n   switchport\n!\ninterface Vlan100\n   description
+    LAB devices\n   no shutdown\n   ip address 172.16.1.250/24\n   ip address 172.100.100.250/24
+    secondary\n   ip address 10.255.255.250/24 secondary\n!\nip route 0.0.0.0/0 172.16.1.1\n!\n!\ninterface
+    Ethernet2-8\n  profile PORT_PROFILE\ninterface Ethernet2\n  description Cloud1\ninterface
+    Ethernet8\n  description ZTPSserver\n\n!\nend\n"
+cvp_topology:
+  HARDWARE:
+    devices:
+    - 720dp-swa
+    parent_container: Tenant

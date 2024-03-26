@@ -5,3 +5,5 @@
 
 .DS_Store
 intended/.DS_Store
+
+0_mgmt_lab/group_vars/CVAAS/cvaas_auth.yml
