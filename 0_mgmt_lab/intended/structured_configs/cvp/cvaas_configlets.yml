@@ -3,58 +3,60 @@ cvp_configlets:
     /usr/bin/TerminAttr -cvaddr=apiserver.cv-staging.corp.arista.io:443 -cvauth=token-secure,/tmp/cv-onboarding-token
     -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -taillogs\n
     \  no shutdown\n!\ninterface profile PORT_PROFILE\n   command description Standard
-    POE Port\n   command switchport access vlan 224\n   command spanning-tree portfast\n!\ntransceiver
-    qsfp default-mode 4x10G\n!\nhostname 720dp-swa\nip name-server vrf default 1.1.1.1\nip
+    POE Port\n   command switchport mode access\n   command switchport access vlan
+    224\n   command spanning-tree portfast\n   command spanning-tree bpduguard enable\n!\ntransceiver
+    qsfp default-mode 4x10G\n!\nservice routing protocols model multi-agent\n!\nlogging
+    monitor debugging\n!\nhostname 720dp-swa\nip name-server vrf default 1.1.1.1\nip
     name-server vrf MGMT 1.1.1.1\nip name-server vrf default 8.8.8.8\nip name-server
-    vrf MGMT 8.8.8.8\n!\nno enable password\nno aaa root\n!\nvlan 224\n   name Public_Internet\n!\nvrf
-    instance MGMT\n!\ninterface Management1\n   description oob_management\n   no
-    shutdown\n   vrf MGMT\n   ip address 192.168.224.203/24\n!\ninterface Vlan224\n
-    \  description Public_Internet\n   no shutdown\n   ip address 192.168.224.202/24\nip
-    routing vrf MGMT\n!\nip route 0.0.0.0/0 192.168.224.1\nip route vrf MGMT 0.0.0.0/0
-    192.168.224.1\n!\nmanagement api http-commands\n   protocol https\n   no shutdown\n
-    \  !\n   vrf default\n      no shutdown\n   !\n   vrf MGMT\n      no shutdown\n!\n!\ninterface
-    Ethernet1-24\n  profile PORT_PROFILE\n!\ninterface Ethernet1-2\n  description
-    Arista_AP\n!\ninterface Ethernet24\n  description Public_Internet\n!\nmonitor
-    connectivity\n  no shutdown\n  !\n  host google_dns\n      ip 8.8.8.8\n      icmp
-    echo size 36\n  !\n  host cvaas\n      url https://www.cv-staging.corp.arista.io\n
-    \     icmp echo size 36\n!\n\n!\nend\n"
-  CONFIGS_cvaas: '!RANCID-CONTENT-TYPE: arista
-
-    !
-
-    transceiver qsfp default-mode 4x10G
-
-    !
-
-    hostname cvaas
-
-    !
-
-    no enable password
-
-    no aaa root
-
-    !
-
-    end
-
-    '
-  CONFIGS_gwy-rtr: "!RANCID-CONTENT-TYPE: arista\n!\ntransceiver qsfp default-mode
-    4x10G\n!\nhostname gwy-rtr\n!\nno enable password\nno aaa root\n!\ninterface Ethernet1\n
-    \  description Public_Internet\n   no shutdown\n   no switchport\n   ip address
-    192.168.224.104/24\n   ip nat source dynamic access-list NAT_ACL overload\n   !\n
-    \  mac-address 00:00:00:22:41:04\n\n!\ninterface Ethernet2\n   description LAN_to_LAB_Devices\n
-    \  no shutdown\n   no switchport\n   !\n   mac-address 00:00:00:01:00:01\n\n!\ninterface
-    Ethernet2.100\n   description LAN_to_LAB_Devices\n   no shutdown\n   encapsulation
-    dot1q vlan 100\n   ip address 172.16.1.1/24\n   ip address 172.100.100.1/24 secondary\n
-    \  ip address 10.255.255.254/24 secondary\n   dhcp server ipv4\n   !\n   arp aging
-    timeout 60\n\n!\nip access-list NAT_ACL\n   10 deny ip 10.0.0.0/8 192.168.224.0/24\n
-    \  20 deny ip 172.16.1.0/24 192.168.224.0/24\n   30 deny ip 172.100.100.0/24 192.168.224.0/24\n
-    \  40 deny ip 10.255.255.0/24 192.168.224.0/24\n   50 permit ip any any\n!\nip
-    route 0.0.0.0/0 192.168.224.1\n!\n!\ndhcp server\n lease time ipv4 1 days 0 hours
-    0 minutes\n dns domain name ipv4 arista.com\n dns server ipv4 8.8.8.8 4.2.2.2\n
-    !\n subnet 172.16.1.0/24\n    range 172.16.1.165 172.16.1.245\n    default-gateway
-    172.16.1.1\n    tftp server file tftp://172.16.1.2/bootstrap.py\nmonitor connectivity\n
+    vrf MGMT 8.8.8.8\n!\nntp server time.google.com prefer iburst\n!\nsflow sample
+    500\nsflow polling-interval 5\nsflow destination 127.0.0.1\nsflow run\n!\naaa
+    authorization exec default local\n!\nno enable password\nno aaa root\n!\nusername
+    admin privilege 15 role network-admin nopassword\nusername ansible privilege 15
+    role network-admin secret sha512 $6$7u4j1rkb3VELgcZE$EJt2Qff8kd/TapRoci0XaIZsL4tFzgq1YZBLD9c6f/knXzvcYY0NcMKndZeCv0T268knGKhOEwZAxqKjlMm920\n!\nvlan
+    224\n   name Public_Internet\n!\nvrf instance MGMT\n!\ninterface Management1\n
+    \  description oob_management\n   no shutdown\n   vrf MGMT\n   ip address 192.168.224.203/24\n!\ninterface
+    Vlan224\n   description Public_Internet\n   no shutdown\n   ip address 192.168.224.202/24\n!\nip
+    routing\nip routing vrf MGMT\n!\nip route 0.0.0.0/0 192.168.224.1\nip route vrf
+    MGMT 0.0.0.0/0 192.168.224.1\n!\nmanagement api http-commands\n   protocol https\n
+    \  no shutdown\n   !\n   vrf default\n      no shutdown\n   !\n   vrf MGMT\n      no
+    shutdown\n!\n!\ninterface Ethernet1-2\n  description Arista_AP\n  poe priority
+    critical\n  poe reboot action maintain\n  poe link down action maintain\n  poe
+    shutdown action power-off\n  !poe limit 30.00 watts\n!\ninterface Ethernet1-23\n
+    \ profile PORT_PROFILE\n!\ninterface Ethernet24\n  description Public_Internet\n
+    \ switchport mode access\n  switchport access vlan 224\n!\nmonitor connectivity\n
+    \ no shutdown\n  !\n  host google_dns\n      ip 8.8.8.8\n      icmp echo size
+    36\n  !\n  host cvaas\n      url https://www.cv-staging.corp.arista.io\n      icmp
+    echo size 36\n!\n\n!\nend\n"
+  CONFIGS_gwy-rtr: "!RANCID-CONTENT-TYPE: arista\n!\ndaemon TerminAttr\n   exec /usr/bin/TerminAttr
+    -cvaddr=apiserver.cv-staging.corp.arista.io:443 -cvauth=token-secure,/tmp/cv-onboarding-token
+    -cvvrf=MGMT -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata
+    -taillogs\n   no shutdown\n!\ntransceiver qsfp default-mode 4x10G\n!\nservice
+    routing protocols model multi-agent\n!\nlogging monitor debugging\n!\nhostname
+    gwy-rtr\nip name-server vrf MGMT 1.1.1.1\nip name-server vrf MGMT 8.8.8.8\n!\nntp
+    server vrf MGMT time.google.com prefer iburst\n!\nsflow sample 500\nsflow polling-interval
+    5\nsflow destination 127.0.0.1\nsflow run\n!\naaa authorization exec default local\n!\nno
+    enable password\nno aaa root\n!\nusername admin privilege 15 role network-admin
+    nopassword\nusername ansible privilege 15 role network-admin secret sha512 $6$7u4j1rkb3VELgcZE$EJt2Qff8kd/TapRoci0XaIZsL4tFzgq1YZBLD9c6f/knXzvcYY0NcMKndZeCv0T268knGKhOEwZAxqKjlMm920\n!\nvrf
+    instance MGMT\n!\ninterface Ethernet1\n   description Public_Internet\n   no shutdown\n
+    \  no switchport\n   ip address 192.168.224.104/24\n   ip nat source dynamic access-list
+    NAT_ACL overload\n   !\n   mac-address 00:00:00:22:41:04\n\n!\ninterface Ethernet2\n
+    \  description LAN_to_LAB_Devices\n   no shutdown\n   no switchport\n   !\n   mac-address
+    00:00:00:01:00:01\n\n!\ninterface Ethernet2.100\n   description LAN_to_LAB_Devices\n
+    \  no shutdown\n   encapsulation dot1q vlan 100\n   ip address 172.16.1.1/24\n
+    \  dhcp server ipv4\n   !\n   arp aging timeout 60\n\n!\ninterface Management1\n
+    \  description oob_management\n   no shutdown\n   vrf MGMT\n   ip address 192.168.224.103/24\n!\nip
+    access-list NAT_ACL\n   10 deny ip 172.16.1.0/24 192.168.224.0/24\n   99 permit
+    ip any any\n!\nip routing\nip routing vrf MGMT\n!\nip route 0.0.0.0/0 192.168.224.1\nip
+    route vrf MGMT 0.0.0.0/0 192.168.224.1\n!\nmanagement api http-commands\n   protocol
+    https\n   no shutdown\n   !\n   vrf default\n      no shutdown\n   !\n   vrf MGMT\n
+    \     no shutdown\n!\n!\ndhcp server\n lease time ipv4 1 days 0 hours 0 minutes\n
+    dns domain name ipv4 arista.com\n dns server ipv4 8.8.8.8 4.2.2.2\n !\n subnet
+    172.16.1.0/24\n    range 172.16.1.165 172.16.1.245\n    default-gateway 172.16.1.1\n
+    \   tftp server file tftp://172.16.1.2/bootstrap.py\n    reservations\n       mac-address
+    5000.0002.0000\n          ipv4-address 172.16.1.171\n          hostname 0-test-01\n
+    \      !\n       mac-address 5002.0002.0000\n          ipv4-address 172.16.1.172\n
+    \         hostname 0-test-02\n       !\n       mac-address 5003.0003.0000\n          ipv4-address
+    172.16.1.173\n          hostname 0-test-03\n       !\n\nmonitor connectivity\n
     \ no shutdown\n  !\n  host google_dns\n      ip 8.8.8.8\n      icmp echo size
     36\n  !\n  host ubuntu_linux\n      ip 192.168.224.101\n      icmp echo size 36\n
     \ !\n  host host_001\n      ip 172.16.1.11\n      icmp echo size 36\n  !\n  host
@@ -76,19 +78,38 @@ cvp_configlets:
     \     icmp echo size 36\n  !\n  host host_020\n      ip 172.16.1.161\n      icmp
     echo size 36\n  !\n  host host_021\n      ip 172.16.1.162\n      icmp echo size
     36\n!\n\n!\nend\n"
-  CONFIGS_switch-mgmt: "!RANCID-CONTENT-TYPE: arista\n!\ninterface profile PORT_PROFILE\n
-    \  command description LAB Endpoints\n   command switchport mode trunk\n   command
-    switchport trunk native vlan 100\n   command spanning-tree portfast\n!\ntransceiver
-    qsfp default-mode 4x10G\n!\nhostname switch-mgmt\n!\nno enable password\nno aaa
-    root\n!\nvlan 100\n   name VLAN_100\n!\nvlan 101\n   name VLAN_101\n!\nvlan 255\n
-    \  name VLAN_255\n!\ninterface Ethernet1\n   description gwy-rtr\n   no shutdown\n
+  CONFIGS_switch-mgmt: "!RANCID-CONTENT-TYPE: arista\n!\ndaemon TerminAttr\n   exec
+    /usr/bin/TerminAttr -cvaddr=apiserver.cv-staging.corp.arista.io:443 -cvauth=token-secure,/tmp/cv-onboarding-token
+    -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -taillogs\n
+    \  no shutdown\n!\ninterface profile PORT_PROFILE\n   command description LAB
+    Endpoints\n   command switchport mode trunk\n   command switchport trunk native
+    vlan 100\n   command spanning-tree portfast\n!\ntransceiver qsfp default-mode
+    4x10G\n!\nservice routing protocols model multi-agent\n!\nlogging monitor debugging\n!\nhostname
+    switch-mgmt\nip name-server vrf default 1.1.1.1\nip name-server vrf default 8.8.8.8\n!\nntp
+    server time.google.com prefer iburst\n!\nsflow sample 500\nsflow polling-interval
+    5\nsflow destination 127.0.0.1\nsflow run\n!\naaa authorization exec default local\n!\nno
+    enable password\nno aaa root\n!\nusername admin privilege 15 role network-admin
+    nopassword\nusername ansible privilege 15 role network-admin secret sha512 $6$7u4j1rkb3VELgcZE$EJt2Qff8kd/TapRoci0XaIZsL4tFzgq1YZBLD9c6f/knXzvcYY0NcMKndZeCv0T268knGKhOEwZAxqKjlMm920\n!\nvlan
+    100\n   name VLAN_100\n!\ninterface Ethernet1\n   description gwy-rtr\n   no shutdown\n
     \  switchport mode trunk\n   switchport\n!\ninterface Vlan100\n   description
-    LAB devices\n   no shutdown\n   ip address 172.16.1.250/24\n   ip address 172.100.100.250/24
-    secondary\n   ip address 10.255.255.250/24 secondary\n!\nip route 0.0.0.0/0 172.16.1.1\n!\n!\ninterface
-    Ethernet2-8\n  profile PORT_PROFILE\ninterface Ethernet2\n  description Cloud1\ninterface
-    Ethernet8\n  description ZTPSserver\n\n!\nend\n"
+    LAB devices\n   no shutdown\n   ip address 172.16.1.250/24\n!\nip routing\n!\nip
+    route 0.0.0.0/0 172.16.1.1\n!\nmanagement api http-commands\n   protocol https\n
+    \  no shutdown\n   !\n   vrf default\n      no shutdown\n!\n!\ninterface Ethernet2-8\n
+    \ profile PORT_PROFILE\ninterface Ethernet2\n  description Cloud1\ninterface Ethernet8\n
+    \ description ZTPSserver\n\n!\nend\n"
 cvp_topology:
+  EVE_NG:
+    devices:
+    - gwy-rtr
+    - switch-mgmt
+    parent_container: LAB_MGMT
   HARDWARE:
     devices:
     - 720dp-swa
+    parent_container: LAB_MGMT
+  LAB:
+    devices: []
     parent_container: Tenant
+  LAB_MGMT:
+    devices: []
+    parent_container: LAB

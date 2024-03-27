@@ -40,22 +40,39 @@ static_routes:
     destination_address_prefix: 0.0.0.0/0
     gateway: 192.168.224.1
 
+sflow:
+  sample: 500
+  polling_interval: 5
+  destinations:
+    - destination: 127.0.0.1
+  # source_interface: Vlan224
+  run: true
+
 interface_profiles:
   - name: PORT_PROFILE
     commands:
       - description Standard POE Port
+      - switchport mode access
       - switchport access vlan 224
       - spanning-tree portfast
+      - spanning-tree bpduguard enable 
 eos_cli: |
-  !
-  interface Ethernet1-24
-    profile PORT_PROFILE
   !
   interface Ethernet1-2
     description Arista_AP
+    poe priority critical
+    poe reboot action maintain
+    poe link down action maintain
+    poe shutdown action power-off
+    !poe limit 30.00 watts
+  !
+  interface Ethernet1-23
+    profile PORT_PROFILE
   !
   interface Ethernet24
     description Public_Internet
+    switchport mode access
+    switchport access vlan 224
   !
   monitor connectivity
     no shutdown
@@ -68,16 +85,3 @@ eos_cli: |
         url https://www.cv-staging.corp.arista.io
         icmp echo size 36
   !
-
-
-daemon_terminattr:
-  cvaddrs:
-  # - 172.16.1.3:9910
-  - apiserver.cv-staging.corp.arista.io:443
-  cvauth:
-    method: token-secure
-    token_file: /tmp/cv-onboarding-token
-  # cvvrf: MGMT
-  smashexcludes: ale,flexCounter,hardware,kni,pulse,strata
-  # ingestexclude: /Sysdb/cell/1/agent,/Sysdb/cell/2/agent
-  disable_aaa: true

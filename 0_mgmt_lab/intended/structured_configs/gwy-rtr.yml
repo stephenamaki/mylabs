@@ -1,3 +1,27 @@
+management_interfaces:
+- name: Management1
+  description: oob_management
+  shutdown: false
+  vrf: MGMT
+  ip_address: 192.168.224.103/24
+  gateway: 192.168.224.1
+  type: oob
+management_api_http:
+  enable_vrfs:
+  - name: MGMT
+  - name: default
+  enable_https: true
+ip_name_servers:
+  - ip_address: 1.1.1.1
+    vrf: MGMT
+  - ip_address: 8.8.8.8
+    vrf: MGMT
+ntp:
+  servers:
+  - name: time.google.com
+    preferred: true
+    vrf: MGMT
+    iburst: true
 ethernet_interfaces:
   - name: Ethernet1
     description: Public_Internet
@@ -26,85 +50,45 @@ ethernet_interfaces:
     encapsulation_dot1q_vlan: 100
     dhcp_server_ipv4: true
     ip_address: 172.16.1.1/24
-    ip_address_secondaries:
-      - 172.100.100.1/24
-      - 10.255.255.254/24
     eos_cli: |
       !
       arp aging timeout 60
-
+vrfs:
+  - name: MGMT
+    ip_routing: true
 static_routes:
   - vrf: default
     destination_address_prefix: 0.0.0.0/0
     gateway: 192.168.224.1
-# monitor_connectivity:
-#   shutdown: false
-#   interval: <int>
-#   hosts:
-#     - name: google_dns
-#       ip: 8.8.8.8
-#     - name: host_001
-#       ip: 172.16.1.11
+  - vrf: MGMT
+    destination_address_prefix: 0.0.0.0/0
+    gateway: 192.168.224.1
 
+daemon_terminattr:
+  cvaddrs:
+  - apiserver.cv-staging.corp.arista.io:443
+  cvauth:
+    method: token-secure
+    token_file: /tmp/cv-onboarding-token
+  cvvrf: MGMT
+  smashexcludes: ale,flexCounter,hardware,kni,pulse,strata
+  # ingestexclude: /Sysdb/cell/1/agent,/Sysdb/cell/2/agent
+  disable_aaa: true
 
 ip_access_lists:
   - name: NAT_ACL
-    # counters_per_entry: true
     entries:
       - sequence: 10
         action: "deny"
         protocol: ip
-        source: 10.0.0.0/8
-        destination: 192.168.224.0/24
-      - sequence: 20
-        action: "deny"
-        protocol: ip
         source: 172.16.1.0/24
         destination: 192.168.224.0/24
-      - sequence: 30
-        action: "deny"
-        protocol: ip
-        source: 172.100.100.0/24
-        destination: 192.168.224.0/24
-      - sequence: 40
-        action: "deny"
-        protocol: ip
-        source: 10.255.255.0/24
-        destination: 192.168.224.0/24
-      - sequence: 50
+      - sequence: 99
         action: "permit"
         protocol: ip
         source: any
         destination: any
 
-# dhcp_servers:
-#   - disabled: true
-#     vrf: default
-#     dns_domain_name_ipv4: arista.com
-#     subnets:
-#       - subnet: 172.16.1.0/24
-#         default_gateway: 172.16.1.1
-#         dns_servers:
-#           - 8.8.8.8
-#           - 4.2.2.2
-#         ranges:
-#           - start: 172.16.1.165
-#             end: 172.16.1.245
-#         lease_time:
-#           days: 1
-#           hours: 0
-#           minutes: 0
-#     ipv4_vendor_options:
-#       - vendor_id: NTP
-#         sub_options:
-#           - code: 42
-#             array_ipv4_address:
-#               - 192.5.41.40
-#               - 192.5.41.41
-#       - vendor_id: vendorClassArista
-#         sub_options:
-#           - code: 6
-#             string: "Arista"
 eos_cli: |
   !
   dhcp server
@@ -116,6 +100,20 @@ eos_cli: |
       range 172.16.1.165 172.16.1.245
       default-gateway 172.16.1.1
       tftp server file tftp://172.16.1.2/bootstrap.py
+      reservations
+         mac-address 5000.0002.0000
+            ipv4-address 172.16.1.171
+            hostname 0-test-01
+         !
+         mac-address 5002.0002.0000
+            ipv4-address 172.16.1.172
+            hostname 0-test-02
+         !
+         mac-address 5003.0003.0000
+            ipv4-address 172.16.1.173
+            hostname 0-test-03
+         !
+
   monitor connectivity
     no shutdown
     !
@@ -211,3 +209,32 @@ eos_cli: |
         ip 172.16.1.162
         icmp echo size 36
   !
+
+# dhcp_servers:
+#   - disabled: true
+#     vrf: default
+#     dns_domain_name_ipv4: arista.com
+#     subnets:
+#       - subnet: 172.16.1.0/24
+#         default_gateway: 172.16.1.1
+#         dns_servers:
+#           - 8.8.8.8
+#           - 4.2.2.2
+#         ranges:
+#           - start: 172.16.1.165
+#             end: 172.16.1.245
+#         lease_time:
+#           days: 1
+#           hours: 0
+#           minutes: 0
+#     ipv4_vendor_options:
+#       - vendor_id: NTP
+#         sub_options:
+#           - code: 42
+#             array_ipv4_address:
+#               - 192.5.41.40
+#               - 192.5.41.41
+#       - vendor_id: vendorClassArista
+#         sub_options:
+#           - code: 6
+#             string: "Arista"

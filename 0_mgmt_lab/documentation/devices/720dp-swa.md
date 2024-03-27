@@ -5,9 +5,15 @@
 - [Management](#management)
   - [Management Interfaces](#management-interfaces)
   - [IP Name Servers](#ip-name-servers)
+  - [NTP](#ntp)
   - [Management API HTTP](#management-api-http)
+- [Authentication](#authentication)
+  - [Local Users](#local-users)
+  - [AAA Authorization](#aaa-authorization)
 - [Monitoring](#monitoring)
   - [TerminAttr Daemon](#terminattr-daemon)
+  - [Logging](#logging)
+  - [SFlow](#sflow)
 - [VLANs](#vlans)
   - [VLANs Summary](#vlans-summary)
   - [VLANs Device Configuration](#vlans-device-configuration)
@@ -15,6 +21,7 @@
   - [Interface Profiles](#interface-profiles)
   - [VLAN Interfaces](#vlan-interfaces)
 - [Routing](#routing)
+  - [Service Routing Protocols Model](#service-routing-protocols-model)
   - [IP Routing](#ip-routing)
   - [IPv6 Routing](#ipv6-routing)
   - [Static Routes](#static-routes)
@@ -72,6 +79,23 @@ ip name-server vrf default 8.8.8.8
 ip name-server vrf MGMT 8.8.8.8
 ```
 
+### NTP
+
+#### NTP Summary
+
+##### NTP Servers
+
+| Server | VRF | Preferred | Burst | iBurst | Version | Min Poll | Max Poll | Local-interface | Key |
+| ------ | --- | --------- | ----- | ------ | ------- | -------- | -------- | --------------- | --- |
+| time.google.com | default | True | - | True | - | - | - | - | - |
+
+#### NTP Device Configuration
+
+```eos
+!
+ntp server time.google.com prefer iburst
+```
+
 ### Management API HTTP
 
 #### Management API HTTP Summary
@@ -102,6 +126,42 @@ management api http-commands
       no shutdown
 ```
 
+## Authentication
+
+### Local Users
+
+#### Local Users Summary
+
+| User | Privilege | Role | Disabled | Shell |
+| ---- | --------- | ---- | -------- | ----- |
+| admin | 15 | network-admin | False | - |
+| ansible | 15 | network-admin | False | - |
+
+#### Local Users Device Configuration
+
+```eos
+!
+username admin privilege 15 role network-admin nopassword
+username ansible privilege 15 role network-admin secret sha512 <removed>
+```
+
+### AAA Authorization
+
+#### AAA Authorization Summary
+
+| Type | User Stores |
+| ---- | ----------- |
+| Exec | local |
+
+Authorization for configuration commands is disabled.
+
+#### AAA Authorization Device Configuration
+
+```eos
+aaa authorization exec default local
+!
+```
+
 ## Monitoring
 
 ### TerminAttr Daemon
@@ -119,6 +179,45 @@ management api http-commands
 daemon TerminAttr
    exec /usr/bin/TerminAttr -cvaddr=apiserver.cv-staging.corp.arista.io:443 -cvauth=token-secure,/tmp/cv-onboarding-token -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -taillogs
    no shutdown
+```
+
+### Logging
+
+#### Logging Servers and Features Summary
+
+| Type | Level |
+| -----| ----- |
+| Monitor | debugging |
+
+#### Logging Servers and Features Device Configuration
+
+```eos
+!
+logging monitor debugging
+```
+
+### SFlow
+
+#### SFlow Summary
+
+| VRF | SFlow Source | SFlow Destination | Port |
+| --- | ------------ | ----------------- | ---- |
+| default | - | 127.0.0.1 | 6343 |
+
+sFlow Sample Rate: 500
+
+sFlow Polling Interval: 5
+
+sFlow is enabled.
+
+#### SFlow Device Configuration
+
+```eos
+!
+sflow sample 500
+sflow polling-interval 5
+sflow destination 127.0.0.1
+sflow run
 ```
 
 ## VLANs
@@ -151,8 +250,10 @@ vlan 224
 !
 interface profile PORT_PROFILE
    command description Standard POE Port
+   command switchport mode access
    command switchport access vlan 224
    command spanning-tree portfast
+   command spanning-tree bpduguard enable
 ```
 
 ### VLAN Interfaces
@@ -181,18 +282,29 @@ interface Vlan224
 
 ## Routing
 
+### Service Routing Protocols Model
+
+Multi agent routing protocol model enabled
+
+```eos
+!
+service routing protocols model multi-agent
+```
+
 ### IP Routing
 
 #### IP Routing Summary
 
 | VRF | Routing Enabled |
 | --- | --------------- |
-| default | False |
+| default | True |
 | MGMT | True |
 
 #### IP Routing Device Configuration
 
 ```eos
+!
+ip routing
 ip routing vrf MGMT
 ```
 
@@ -242,14 +354,21 @@ vrf instance MGMT
 ```eos
 !
 !
-interface Ethernet1-24
-  profile PORT_PROFILE
-!
 interface Ethernet1-2
   description Arista_AP
+  poe priority critical
+  poe reboot action maintain
+  poe link down action maintain
+  poe shutdown action power-off
+  !poe limit 30.00 watts
+!
+interface Ethernet1-23
+  profile PORT_PROFILE
 !
 interface Ethernet24
   description Public_Internet
+  switchport mode access
+  switchport access vlan 224
 !
 monitor connectivity
   no shutdown

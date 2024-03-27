@@ -1,9 +1,16 @@
 ---
+- name: Build Device Configs
+  hosts: LAB
+  gather_facts: false
+  tasks:
+    - name: Generate Device Configurations and Documentation
+      ansible.builtin.import_role:
+        name: arista.avd.eos_cli_config_gen
+
 - name: Deploy Configurations to Devices Using CloudVision Portal
   hosts: CVAAS
   gather_facts: false
   connection: local
-
   tasks:
 
     - name: Deploying configurations to CVaaS
@@ -11,7 +18,7 @@
         name: arista.avd.eos_config_deploy_cvp
       vars:
         cv_collection: v3
-        fabric_name: HARDWARE
+        fabric_name: LAB
         # container_root: 'DC1_FABRIC'
         configlets_prefix: 'CONFIGS'
         # state: present

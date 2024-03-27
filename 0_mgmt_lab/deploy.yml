@@ -1,7 +1,7 @@
 ---
 # Please note, comments below are intended for site documentation only
 - name: Run AVD # (1)!
-  hosts: FABRIC
+  hosts: LAB
   gather_facts: false
   tasks:
     # - name: Generate AVD Structured Configurations and Fabric Documentation # (2)!

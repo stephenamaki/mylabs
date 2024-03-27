@@ -4,33 +4,14 @@ ethernet_interfaces:
     type: switched
     shutdown: false
     mode: trunk
-  # - name: Ethernet2
-  #   description: Cloud1
-  #   spanning_tree_portfast: edge
-  #   mode: "trunk"
-  #   native_vlan: 100
-  #   shutdown: false 
-  # - name: Ethernet8
-  #   description: ZTPSserver
-  #   spanning_tree_portfast: edge
-  #   mode: "trunk"
-  #   native_vlan: 100
-  #   shutdown: false 
 vlans:
   - id: 100
     name: VLAN_100
-  - id: 101
-    name: VLAN_101
-  - id: 255
-    name: VLAN_255
 vlan_interfaces:
   - name: Vlan100
     description: LAB devices 
     shutdown: false 
     ip_address: 172.16.1.250/24
-    ip_address_secondaries:
-      - 172.100.100.250/24
-      - 10.255.255.250/24
 static_routes:
   - vrf: default
     destination_address_prefix: 0.0.0.0/0
