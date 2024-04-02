@@ -164,6 +164,7 @@ logging monitor debugging
 | VRF | SFlow Source | SFlow Destination | Port |
 | --- | ------------ | ----------------- | ---- |
 | default | - | 127.0.0.1 | 6343 |
+| default | Vlan100 | - | - |
 
 sFlow Sample Rate: 500
 
@@ -178,6 +179,7 @@ sFlow is enabled.
 sflow sample 500
 sflow polling-interval 5
 sflow destination 127.0.0.1
+sflow source-interface Vlan100
 sflow run
 ```
 
@@ -224,7 +226,7 @@ interface profile PORT_PROFILE
 
 | Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | Channel-Group |
 | --------- | ----------- | ---- | ----- | ----------- | ----------- | ------------- |
-| Ethernet1 |  gwy-rtr | trunk | - | - | - | - |
+| Ethernet1 |  gwy-rtr | access | 100 | - | - | - |
 
 *Inherited from Port-Channel Interface
 
@@ -235,8 +237,10 @@ interface profile PORT_PROFILE
 interface Ethernet1
    description gwy-rtr
    no shutdown
-   switchport mode trunk
+   switchport access vlan 100
+   switchport mode access
    switchport
+   spanning-tree portfast
 ```
 
 ### VLAN Interfaces

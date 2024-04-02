@@ -76,11 +76,3 @@ daemon_terminattr:
   smashexcludes: ale,flexCounter,hardware,kni,pulse,strata
   # ingestexclude: /Sysdb/cell/1/agent,/Sysdb/cell/2/agent
   disable_aaa: true
-
-sflow:
-  sample: 500
-  polling_interval: 5
-  destinations:
-    - destination: 127.0.0.1
-  # source_interface: Vlan224
-  run: true

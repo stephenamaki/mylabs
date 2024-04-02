@@ -40,18 +40,11 @@ ethernet_interfaces:
     description: LAN_to_LAB_Devices
     type: routed
     shutdown: false
-    eos_cli: |
-      !
-      mac-address 00:00:00:01:00:01
-  - name: Ethernet2.100
-    description: LAN_to_LAB_Devices
-    type: l3dot1q
-    shutdown: false
-    encapsulation_dot1q_vlan: 100
     dhcp_server_ipv4: true
     ip_address: 172.16.1.1/24
     eos_cli: |
       !
+      mac-address 00:00:00:01:00:01
       arp aging timeout 60
 vrfs:
   - name: MGMT
@@ -63,6 +56,13 @@ static_routes:
   - vrf: MGMT
     destination_address_prefix: 0.0.0.0/0
     gateway: 192.168.224.1
+sflow:
+  sample: 500
+  polling_interval: 5
+  destinations:
+    - destination: 127.0.0.1
+  source_interface: Management1
+  run: true
 
 daemon_terminattr:
   cvaddrs:
@@ -99,19 +99,19 @@ eos_cli: |
    subnet 172.16.1.0/24
       range 172.16.1.165 172.16.1.245
       default-gateway 172.16.1.1
-      tftp server file tftp://172.16.1.2/bootstrap.py
-      reservations
-         mac-address 5000.0002.0000
-            ipv4-address 172.16.1.171
-            hostname 0-test-01
+      tftp server file tftp://192.168.224.105/bootstrap.py
+      !reservations
+         !mac-address 5000.0002.0000
+         !   ipv4-address 172.16.1.171
+         !   hostname 0-test-01
          !
-         mac-address 5002.0002.0000
-            ipv4-address 172.16.1.172
-            hostname 0-test-02
+         !mac-address 5002.0002.0000
+         !   ipv4-address 172.16.1.172
+         !   hostname 0-test-02
          !
-         mac-address 5003.0003.0000
-            ipv4-address 172.16.1.173
-            hostname 0-test-03
+         !mac-address 5003.0003.0000
+         !   ipv4-address 172.16.1.173
+         !   hostname 0-test-03
          !
 
   monitor connectivity
@@ -119,10 +119,6 @@ eos_cli: |
     !
     host google_dns
         ip 8.8.8.8
-        icmp echo size 36
-    !
-    host ubuntu_linux
-        ip 192.168.224.101
         icmp echo size 36
     !
     host host_001

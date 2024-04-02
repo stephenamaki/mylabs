@@ -3,7 +3,9 @@ ethernet_interfaces:
     description: gwy-rtr
     type: switched
     shutdown: false
-    mode: trunk
+    mode: access
+    vlans: 100
+    spanning_tree_portfast: edge
 vlans:
   - id: 100
     name: VLAN_100
@@ -16,6 +18,14 @@ static_routes:
   - vrf: default
     destination_address_prefix: 0.0.0.0/0
     gateway: 172.16.1.1
+
+sflow:
+  sample: 500
+  polling_interval: 5
+  destinations:
+    - destination: 127.0.0.1
+  source_interface: Vlan100
+  run: true
 
 interface_profiles:
   - name: PORT_PROFILE

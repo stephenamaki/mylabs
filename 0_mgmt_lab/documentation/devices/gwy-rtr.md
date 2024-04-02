@@ -164,7 +164,7 @@ aaa authorization exec default local
 
 | Interface name | DHCP IPv4 | DHCP IPv6 |
 | -------------- | --------- | --------- |
-| Ethernet2.100 | True | False |
+| Ethernet2 | True | False |
 
 ## Monitoring
 
@@ -207,6 +207,7 @@ logging monitor debugging
 | VRF | SFlow Source | SFlow Destination | Port |
 | --- | ------------ | ----------------- | ---- |
 | default | - | 127.0.0.1 | 6343 |
+| default | Management1 | - | - |
 
 sFlow Sample Rate: 500
 
@@ -221,6 +222,7 @@ sFlow is enabled.
 sflow sample 500
 sflow polling-interval 5
 sflow destination 127.0.0.1
+sflow source-interface Management1
 sflow run
 ```
 
@@ -237,18 +239,12 @@ sflow run
 
 *Inherited from Port-Channel Interface
 
-##### Encapsulation Dot1q Interfaces
-
-| Interface | Description | Type | Vlan ID | Dot1q VLAN Tag |
-| --------- | ----------- | -----| ------- | -------------- |
-| Ethernet2.100 | LAN_to_LAB_Devices | l3dot1q | - | 100 |
-
 ##### IPv4
 
 | Interface | Description | Type | Channel Group | IP Address | VRF |  MTU | Shutdown | ACL In | ACL Out |
 | --------- | ----------- | -----| ------------- | ---------- | ----| ---- | -------- | ------ | ------- |
 | Ethernet1 | Public_Internet | routed | - | 192.168.224.104/24 | default | - | False | - | - |
-| Ethernet2.100 | LAN_to_LAB_Devices | l3dot1q | - | 172.16.1.1/24 | default | - | False | - | - |
+| Ethernet2 | LAN_to_LAB_Devices | routed | - | 172.16.1.1/24 | default | - | False | - | - |
 
 ##### IP NAT: Source Dynamic
 
@@ -274,17 +270,10 @@ interface Ethernet2
    description LAN_to_LAB_Devices
    no shutdown
    no switchport
-   !
-   mac-address 00:00:00:01:00:01
-
-!
-interface Ethernet2.100
-   description LAN_to_LAB_Devices
-   no shutdown
-   encapsulation dot1q vlan 100
    ip address 172.16.1.1/24
    dhcp server ipv4
    !
+   mac-address 00:00:00:01:00:01
    arp aging timeout 60
 
 ```
@@ -384,19 +373,19 @@ dhcp server
  subnet 172.16.1.0/24
     range 172.16.1.165 172.16.1.245
     default-gateway 172.16.1.1
-    tftp server file tftp://172.16.1.2/bootstrap.py
-    reservations
-       mac-address 5000.0002.0000
-          ipv4-address 172.16.1.171
-          hostname 0-test-01
+    tftp server file tftp://192.168.224.105/bootstrap.py
+    !reservations
+       !mac-address 5000.0002.0000
+       !   ipv4-address 172.16.1.171
+       !   hostname 0-test-01
        !
-       mac-address 5002.0002.0000
-          ipv4-address 172.16.1.172
-          hostname 0-test-02
+       !mac-address 5002.0002.0000
+       !   ipv4-address 172.16.1.172
+       !   hostname 0-test-02
        !
-       mac-address 5003.0003.0000
-          ipv4-address 172.16.1.173
-          hostname 0-test-03
+       !mac-address 5003.0003.0000
+       !   ipv4-address 172.16.1.173
+       !   hostname 0-test-03
        !
 
 monitor connectivity
@@ -404,10 +393,6 @@ monitor connectivity
   !
   host google_dns
       ip 8.8.8.8
-      icmp echo size 36
-  !
-  host ubuntu_linux
-      ip 192.168.224.101
       icmp echo size 36
   !
   host host_001

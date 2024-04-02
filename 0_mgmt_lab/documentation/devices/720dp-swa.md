@@ -252,8 +252,6 @@ interface profile PORT_PROFILE
    command description Standard POE Port
    command switchport mode access
    command switchport access vlan 224
-   command spanning-tree portfast
-   command spanning-tree bpduguard enable
 ```
 
 ### VLAN Interfaces
@@ -356,7 +354,7 @@ vrf instance MGMT
 !
 interface Ethernet1-2
   description Arista_AP
-  poe priority critical
+  !poe priority critical
   poe reboot action maintain
   poe link down action maintain
   poe shutdown action power-off

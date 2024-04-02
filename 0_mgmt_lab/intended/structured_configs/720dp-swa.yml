@@ -54,13 +54,13 @@ interface_profiles:
       - description Standard POE Port
       - switchport mode access
       - switchport access vlan 224
-      - spanning-tree portfast
-      - spanning-tree bpduguard enable 
+      # - spanning-tree portfast
+      # - spanning-tree bpduguard enable 
 eos_cli: |
   !
   interface Ethernet1-2
     description Arista_AP
-    poe priority critical
+    !poe priority critical
     poe reboot action maintain
     poe link down action maintain
     poe shutdown action power-off
