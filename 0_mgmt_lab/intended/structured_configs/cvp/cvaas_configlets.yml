@@ -13,8 +13,8 @@ cvp_configlets:
     admin privilege 15 role network-admin nopassword\nusername ansible privilege 15
     role network-admin secret sha512 $6$7u4j1rkb3VELgcZE$EJt2Qff8kd/TapRoci0XaIZsL4tFzgq1YZBLD9c6f/knXzvcYY0NcMKndZeCv0T268knGKhOEwZAxqKjlMm920\n!\nvlan
     224\n   name Public_Internet\n!\nvrf instance MGMT\n!\ninterface Management1\n
-    \  description oob_management\n   no shutdown\n   vrf MGMT\n   ip address 192.168.224.203/24\n!\ninterface
-    Vlan224\n   description Public_Internet\n   no shutdown\n   ip address 192.168.224.202/24\n!\nip
+    \  description oob_management\n   no shutdown\n   vrf MGMT\n   ip address 192.168.224.107/24\n!\ninterface
+    Vlan224\n   description Public_Internet\n   no shutdown\n   ip address 192.168.224.108/24\n!\nip
     routing\nip routing vrf MGMT\n!\nip route 0.0.0.0/0 192.168.224.1\nip route vrf
     MGMT 0.0.0.0/0 192.168.224.1\n!\nmanagement api http-commands\n   protocol https\n
     \  no shutdown\n   !\n   vrf default\n      no shutdown\n   !\n   vrf MGMT\n      no

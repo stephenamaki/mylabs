@@ -18,7 +18,7 @@ all:
             HARDWARE:
               hosts:
                 720dp-swa:
-                  ansible_host: 192.168.224.202
+                  ansible_host: 192.168.224.108
 
     NETWORK_PORTS:
       children:

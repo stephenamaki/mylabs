@@ -9,7 +9,15 @@
   - [Management API HTTP](#management-api-http)
 - [Authentication](#authentication)
   - [Local Users](#local-users)
+  - [AAA Server Groups](#aaa-server-groups)
+  - [AAA Authentication](#aaa-authentication)
   - [AAA Authorization](#aaa-authorization)
+  - [AAA Accounting](#aaa-accounting)
+- [Management Security](#management-security)
+  - [Management Security Summary](#management-security-summary)
+  - [Management Security SSL Profiles](#management-security-ssl-profiles)
+  - [SSL profile agni-server Certificates Summary](#ssl-profile-agni-server-certificates-summary)
+  - [Management Security Device Configuration](#management-security-device-configuration)
 - [Monitoring](#monitoring)
   - [TerminAttr Daemon](#terminattr-daemon)
   - [Logging](#logging)
@@ -40,7 +48,7 @@
 
 | Management Interface | Description | Type | VRF | IP Address | Gateway |
 | -------------------- | ----------- | ---- | --- | ---------- | ------- |
-| Management1 | oob_management | oob | MGMT | 192.168.224.203/24 | 192.168.224.1 |
+| Management1 | oob_management | oob | MGMT | 192.168.224.107/24 | 192.168.224.1 |
 
 ##### IPv6
 
@@ -56,7 +64,7 @@ interface Management1
    description oob_management
    no shutdown
    vrf MGMT
-   ip address 192.168.224.203/24
+   ip address 192.168.224.107/24
 ```
 
 ### IP Name Servers
@@ -145,6 +153,36 @@ username admin privilege 15 role network-admin nopassword
 username ansible privilege 15 role network-admin secret sha512 <removed>
 ```
 
+### AAA Server Groups
+
+#### AAA Server Groups Summary
+
+| Server Group Name | Type  | VRF | IP address |
+| ------------------| ----- | --- | ---------- |
+| agni-server-group | radius | default | radsec.beta.agni.arista.io tls |
+
+#### AAA Server Groups Device Configuration
+
+```eos
+!
+aaa group server radius agni-server-group
+   server radsec.beta.agni.arista.io tls vrf default
+```
+
+### AAA Authentication
+
+#### AAA Authentication Summary
+
+| Type | Sub-type | User Stores |
+| ---- | -------- | ---------- |
+
+#### AAA Authentication Device Configuration
+
+```eos
+aaa authentication dot1x default group radius
+!
+```
+
 ### AAA Authorization
 
 #### AAA Authorization Summary
@@ -160,6 +198,49 @@ Authorization for configuration commands is disabled.
 ```eos
 aaa authorization exec default local
 !
+```
+
+### AAA Accounting
+
+#### AAA Accounting Summary
+
+| Type | Commands | Record type | Group | Logging |
+| ---- | -------- | ----------- | ----- | ------- |
+| Dot1x - Default  | - | start-stop | radius | - |
+
+#### AAA Accounting Device Configuration
+
+```eos
+aaa accounting dot1x default start-stop group radius
+```
+
+## Management Security
+
+### Management Security Summary
+
+| Settings | Value |
+| -------- | ----- |
+
+### Management Security SSL Profiles
+
+| SSL Profile Name | TLS protocol accepted | Certificate filename | Key filename | Cipher List | CRLs |
+| ---------------- | --------------------- | -------------------- | ------------ | ----------- | ---- |
+| agni-server | - | 720dp-swa.pem | 720dp-swa.key | - | - |
+
+### SSL profile agni-server Certificates Summary
+
+| Trust Certificates | Requirement | Policy | System |
+| ------------------ | ----------- | ------ | ------ |
+| radsec_ca_certificate.pem | - | - | - |
+
+### Management Security Device Configuration
+
+```eos
+!
+management security
+   ssl profile agni-server
+      trust certificate radsec_ca_certificate.pem
+      certificate 720dp-swa.pem key 720dp-swa.key
 ```
 
 ## Monitoring
@@ -266,7 +347,7 @@ interface profile PORT_PROFILE
 
 | Interface | VRF | IP Address | IP Address Virtual | IP Router Virtual Address | VRRP | ACL In | ACL Out |
 | --------- | --- | ---------- | ------------------ | ------------------------- | ---- | ------ | ------- |
-| Vlan224 |  default  |  192.168.224.202/24  |  -  |  -  |  -  |  -  |  -  |
+| Vlan224 |  default  |  192.168.224.108/24  |  -  |  -  |  -  |  -  |  -  |
 
 #### VLAN Interfaces Device Configuration
 
@@ -275,7 +356,7 @@ interface profile PORT_PROFILE
 interface Vlan224
    description Public_Internet
    no shutdown
-   ip address 192.168.224.202/24
+   ip address 192.168.224.108/24
 ```
 
 ## Routing

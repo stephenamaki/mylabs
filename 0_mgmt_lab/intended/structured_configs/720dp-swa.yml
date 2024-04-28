@@ -85,3 +85,29 @@ eos_cli: |
         url https://www.cv-staging.corp.arista.io
         icmp echo size 36
   !
+aaa_server_groups:
+  - name: "agni-server-group"
+    type: "radius"
+    servers:
+      - server: "radsec.beta.agni.arista.io tls"
+        vrf: default 
+# aaa_authorization:
+#   exec:
+#     default: local
+aaa_authentication:
+  dot1x:
+    default: "group radius"
+aaa_accounting:
+  dot1x:
+    default:
+      type: "start-stop"
+      group: "radius"
+management_security:
+  ssl_profiles:
+    - name: "agni-server"
+      trust_certificate:
+        certificates:
+          - "radsec_ca_certificate.pem"
+      certificate:
+        file: 720dp-swa.pem
+        key: 720dp-swa.key
