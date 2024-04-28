@@ -1,0 +1,6 @@
+alias cc clear counters
+alias cp clear platform trident counters 
+alias senz show interface counter error | nz 
+alias snz show interface counter | nz 
+alias sqnz show interface counter queue | nz 
+alias srnz show interface counter rate | nz

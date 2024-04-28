@@ -3,7 +3,7 @@ management_interfaces:
   description: oob_management
   shutdown: false
   vrf: MGMT
-  ip_address: 192.168.224.203/24
+  ip_address: 192.168.224.107/24
   gateway: 192.168.224.1
   type: oob
 management_api_http:
@@ -24,7 +24,7 @@ vlan_interfaces:
   - name: Vlan224
     description: Public_Internet
     shutdown: false 
-    ip_address: 192.168.224.202/24
+    ip_address: 192.168.224.108/24
     # dhcp_server_ipv4: true 
 vlans:
   - id: 224

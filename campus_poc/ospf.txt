@@ -1,0 +1,21 @@
+
+!
+router ospf 100
+   router-id 10.255.0.1
+   passive-interface default
+   no passive-interface Ethernet1
+   max-lsa 12000
+   redistribute connected
+!
+
+
+===========================
+
+!
+router ospf 100
+   router-id 10.255.0.2
+   passive-interface default
+   no passive-interface Ethernet1
+   max-lsa 12000
+   redistribute connected
+!

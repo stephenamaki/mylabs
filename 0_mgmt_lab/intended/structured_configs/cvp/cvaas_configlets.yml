@@ -51,7 +51,7 @@ cvp_configlets:
     shutdown\n!\n!\ndhcp server\n lease time ipv4 1 days 0 hours 0 minutes\n dns domain
     name ipv4 arista.com\n dns server ipv4 8.8.8.8 4.2.2.2\n !\n subnet 172.16.1.0/24\n
     \   range 172.16.1.165 172.16.1.245\n    default-gateway 172.16.1.1\n    tftp
-    server file tftp://192.168.224.105/bootstrap.py\n    !reservations\n       !mac-address
+    server file tftp://192.168.224.101/bootstrap.py\n    !reservations\n       !mac-address
     5000.0002.0000\n       !   ipv4-address 172.16.1.171\n       !   hostname 0-test-01\n
     \      !\n       !mac-address 5002.0002.0000\n       !   ipv4-address 172.16.1.172\n
     \      !   hostname 0-test-02\n       !\n       !mac-address 5003.0003.0000\n

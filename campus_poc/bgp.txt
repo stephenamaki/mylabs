@@ -1,0 +1,43 @@
+device1:
+
+!
+router bgp 65101
+   router-id 10.255.0.1
+   no bgp default ipv4-unicast
+   distance bgp 20 200 200
+   maximum-paths 4 ecmp 4
+   neighbor MLAG-IPv4-UNDERLAY-PEER peer group
+   neighbor MLAG-IPv4-UNDERLAY-PEER remote-as 65101
+   neighbor MLAG-IPv4-UNDERLAY-PEER next-hop-self
+   neighbor MLAG-IPv4-UNDERLAY-PEER description dc1-leaf1b
+   neighbor MLAG-IPv4-UNDERLAY-PEER route-map RM-MLAG-PEER-IN in
+   neighbor MLAG-IPv4-UNDERLAY-PEER password 7 4b21pAdCvWeAqpcKDFMdWw==
+   neighbor MLAG-IPv4-UNDERLAY-PEER send-community
+   neighbor MLAG-IPv4-UNDERLAY-PEER maximum-routes 12000
+
+   neighbor 10.255.1.97 peer group MLAG-IPv4-UNDERLAY-PEER
+   neighbor 10.255.1.97 description dc1-leaf1b
+!
+
+===================================================
+
+device2: 
+
+!
+router bgp 65101
+   router-id 10.255.0.2
+   no bgp default ipv4-unicast
+   distance bgp 20 200 200
+   maximum-paths 4 ecmp 4
+   neighbor MLAG-IPv4-UNDERLAY-PEER peer group
+   neighbor MLAG-IPv4-UNDERLAY-PEER remote-as 65101
+   neighbor MLAG-IPv4-UNDERLAY-PEER next-hop-self
+   neighbor MLAG-IPv4-UNDERLAY-PEER description dc1-leaf1a
+   neighbor MLAG-IPv4-UNDERLAY-PEER route-map RM-MLAG-PEER-IN in
+   neighbor MLAG-IPv4-UNDERLAY-PEER password 7 4b21pAdCvWeAqpcKDFMdWw==
+   neighbor MLAG-IPv4-UNDERLAY-PEER send-community
+   neighbor MLAG-IPv4-UNDERLAY-PEER maximum-routes 12000
+   neighbor 10.255.1.96 peer group MLAG-IPv4-UNDERLAY-PEER
+   neighbor 10.255.1.96 description dc1-leaf1a
+!
+   
