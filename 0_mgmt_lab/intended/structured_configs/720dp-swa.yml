@@ -36,10 +36,15 @@ static_routes:
   - vrf: default
     destination_address_prefix: 0.0.0.0/0
     gateway: 192.168.224.1
+  - vrf: default
+    destination_address_prefix: 172.16.1.0/24
+    gateway: 192.168.224.104
   - vrf: MGMT
     destination_address_prefix: 0.0.0.0/0
     gateway: 192.168.224.1
-
+  - vrf: MGMT
+    destination_address_prefix: 172.16.1.0/24
+    gateway: 192.168.224.104
 sflow:
   sample: 500
   polling_interval: 5
@@ -85,12 +90,65 @@ eos_cli: |
         url https://www.cv-staging.corp.arista.io
         icmp echo size 36
   !
+  daemon AristaCloudGateway
+   exec /usr/bin/acg 
+   option AGNI_API_TOKEN value eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJRCI6IkU2NTA5NGJiYi1kZDBiLTQ2OWYtOTMyMS1mMTkzYjE3M2U2YTciLCJ0b2tlbklEIjoiRURDT08zVUpNMDYyVVM3Mk9BMEVFRyIsImlzcyI6IkFHTkkiLCJhdWQiOiJBQ0cgRGV2aWNlIFRva2VuIiwiZXhwIjoiMjEyMy0wNC0wN1QwMDo0NjowNi4yODY1ODY5NzRaIiwiaWF0IjoiMjAyNC0wNC0zMFQwMDo0NjowNi4yODY1ODg2NThaIiwic2NvcGVzIjpbImlkZW50aXR5LmNsaWVudC5wcm9maWxlIiwiaWRlbnRpdHkuY2xpZW50LnByb2ZpbGUudXBkYXRlIiwiYWNnIl0sImF0dHJzIjp7ImFjZ0RldmljZUlEIjoiNzg3MjcwYjktNWY3ZC00YThjLTliMjUtNDQxYTc3YjUxYmMwIiwiY2x1c3RlciI6ImJldGEiLCJjbHVzdGVyVVJMIjoiaHR0cHM6Ly9iZXRhLmFnbmkuYXJpc3RhLmlvIiwidG9rZW5OYW1lIjoiQ2xvdWQgR2F0ZXdheS0xIn19.yyMCJkgfwCGqdxj9zX-k7EksoqSjuj4ULXDaI56EtFUbl6I7Jbo0ENGo5ZlvHwx-1TLy6tRVTpqQ-hP7VljnOA
+   no shutdown
+  !
+  match-list input prefix-ipv4 DVR_PREFIXES
+    match prefix-ipv4 192.168.224.0/24
+  match-list input prefix-ipv4 CAMERA_PREFIXES
+    match prefix-ipv4 172.16.1.0/24
+  match-list input prefix-ipv4 INTRANET_PREFIXES
+    match prefix-ipv4 192.168.224.0/24
+
+  !
+  router segment-security
+    vrf default
+        segment SEGMENT_CAMERA
+          definition
+              match prefix-ipv4 CAMERA_PREFIXES
+        !
+        segment SEGMENT_DVR
+          definition
+              match prefix-ipv4 DVR_PREFIXES
+        segment SEGMENT_INTRANET
+          definition
+              match prefix-ipv4 INTRANET_PREFIXES
+        !
+  !
+  router segment-security
+    vrf default
+        segment SEGMENT_CAMERA
+          policies
+              from SEGMENT_DVR policy policy-forward-all
+        !
+        segment SEGMENT_DVR
+          policies
+              from SEGMENT_DVR policy policy-forward-all
+        segment SEGMENT_INTRANET
+          policies
+              from SEGMENT_INTRANET policy policy-forward-all
+  !
+  router segment-security
+      no segment policy policy-drop-all default
+  !
+  router segment-security
+      vrf default
+          segment SEGMENT_CAMERA
+              policies
+                  from SEGMENT_CAMERA policy policy-drop-all
+  !
+  router segment-security
+      no shutdown
+  !
+
 aaa_server_groups:
   - name: "agni-server-group"
     type: "radius"
     servers:
       - server: "radsec.beta.agni.arista.io tls"
-        vrf: default 
+        # vrf: default 
 # aaa_authorization:
 #   exec:
 #     default: local
@@ -111,3 +169,29 @@ management_security:
       certificate:
         file: 720dp-swa.pem
         key: 720dp-swa.key
+
+radius_server:
+  dynamic_authorization:
+    # port: 3799
+    tls_ssl_profile: agni-server
+  hosts:
+    - host: "radsec.beta.agni.arista.io tls ssl-profile agni-server"
+
+dot1x:
+  system_auth_control: true
+  protocol_lldp_bypass: true
+  dynamic_authorization: true
+
+ethernet_interfaces:
+  - name: Ethernet3
+    dot1x:
+      port_control: "auto"
+      pae:
+        mode: "authenticator"
+      host_mode:
+        mode: "multi-host"
+        multi_host_authenticated: true
+# daemons:
+#   - name: AristaCloudGateway
+#     exec:  /usr/bin/acg 
+#     enabled: true

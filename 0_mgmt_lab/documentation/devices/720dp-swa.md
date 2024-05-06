@@ -9,6 +9,7 @@
   - [Management API HTTP](#management-api-http)
 - [Authentication](#authentication)
   - [Local Users](#local-users)
+  - [RADIUS Server](#radius-server)
   - [AAA Server Groups](#aaa-server-groups)
   - [AAA Authentication](#aaa-authentication)
   - [AAA Authorization](#aaa-authorization)
@@ -27,12 +28,15 @@
   - [VLANs Device Configuration](#vlans-device-configuration)
 - [Interfaces](#interfaces)
   - [Interface Profiles](#interface-profiles)
+  - [Ethernet Interfaces](#ethernet-interfaces)
   - [VLAN Interfaces](#vlan-interfaces)
 - [Routing](#routing)
   - [Service Routing Protocols Model](#service-routing-protocols-model)
   - [IP Routing](#ip-routing)
   - [IPv6 Routing](#ipv6-routing)
   - [Static Routes](#static-routes)
+- [802.1X Port Security](#8021x-port-security)
+  - [802.1X Summary](#8021x-summary)
 - [VRF Instances](#vrf-instances)
   - [VRF Instances Summary](#vrf-instances-summary)
   - [VRF Instances Device Configuration](#vrf-instances-device-configuration)
@@ -153,6 +157,24 @@ username admin privilege 15 role network-admin nopassword
 username ansible privilege 15 role network-admin secret sha512 <removed>
 ```
 
+### RADIUS Server
+
+- Dynamic Authorization is enabled with SSL profile agni-server
+
+#### RADIUS Server Hosts
+
+| VRF | RADIUS Servers | Timeout | Retransmit |
+| --- | -------------- | ------- | ---------- |
+| default | radsec.beta.agni.arista.io tls ssl-profile agni-server | - | - |
+
+#### RADIUS Server Device Configuration
+
+```eos
+!
+radius-server dynamic-authorization tls ssl-profile agni-server
+radius-server host radsec.beta.agni.arista.io tls ssl-profile agni-server
+```
+
 ### AAA Server Groups
 
 #### AAA Server Groups Summary
@@ -166,7 +188,7 @@ username ansible privilege 15 role network-admin secret sha512 <removed>
 ```eos
 !
 aaa group server radius agni-server-group
-   server radsec.beta.agni.arista.io tls vrf default
+   server radsec.beta.agni.arista.io tls
 ```
 
 ### AAA Authentication
@@ -335,6 +357,29 @@ interface profile PORT_PROFILE
    command switchport access vlan 224
 ```
 
+### Ethernet Interfaces
+
+#### Ethernet Interfaces Summary
+
+##### L2
+
+| Interface | Description | Mode | VLANs | Native VLAN | Trunk Group | Channel-Group |
+| --------- | ----------- | ---- | ----- | ----------- | ----------- | ------------- |
+| Ethernet3 |  - | access | - | - | - | - |
+
+*Inherited from Port-Channel Interface
+
+#### Ethernet Interfaces Device Configuration
+
+```eos
+!
+interface Ethernet3
+   switchport
+   dot1x pae authenticator
+   dot1x port-control auto
+   dot1x host-mode multi-host authenticated
+```
+
 ### VLAN Interfaces
 
 #### VLAN Interfaces Summary
@@ -403,15 +448,35 @@ ip routing vrf MGMT
 | VRF | Destination Prefix | Next Hop IP | Exit interface | Administrative Distance | Tag | Route Name | Metric |
 | --- | ------------------ | ----------- | -------------- | ----------------------- | --- | ---------- | ------ |
 | default | 0.0.0.0/0 | 192.168.224.1 | - | 1 | - | - | - |
+| default | 172.16.1.0/24 | 192.168.224.104 | - | 1 | - | - | - |
 | MGMT | 0.0.0.0/0 | 192.168.224.1 | - | 1 | - | - | - |
+| MGMT | 172.16.1.0/24 | 192.168.224.104 | - | 1 | - | - | - |
 
 #### Static Routes Device Configuration
 
 ```eos
 !
 ip route 0.0.0.0/0 192.168.224.1
+ip route 172.16.1.0/24 192.168.224.104
 ip route vrf MGMT 0.0.0.0/0 192.168.224.1
+ip route vrf MGMT 172.16.1.0/24 192.168.224.104
 ```
+
+## 802.1X Port Security
+
+### 802.1X Summary
+
+#### 802.1X Global
+
+| System Auth Control | Protocol LLDP Bypass | Dynamic Authorization |
+| ------------------- | -------------------- | ----------------------|
+| True | True | True |
+
+#### 802.1X Interfaces
+
+| Interface | PAE Mode | State | Phone Force Authorized | Reauthentication | Auth Failure Action | Host Mode | Mac Based Auth | Eapol |
+| --------- | -------- | ------| ---------------------- | ---------------- | ------------------- | --------- | -------------- | ------ |
+| Ethernet3 | authenticator | auto | - | - | - | multi-host | - | - |
 
 ## VRF Instances
 
@@ -459,6 +524,58 @@ monitor connectivity
   host cvaas
       url https://www.cv-staging.corp.arista.io
       icmp echo size 36
+!
+daemon AristaCloudGateway
+ exec /usr/bin/acg 
+ option AGNI_API_TOKEN value eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJRCI6IkU2NTA5NGJiYi1kZDBiLTQ2OWYtOTMyMS1mMTkzYjE3M2U2YTciLCJ0b2tlbklEIjoiRURDT08zVUpNMDYyVVM3Mk9BMEVFRyIsImlzcyI6IkFHTkkiLCJhdWQiOiJBQ0cgRGV2aWNlIFRva2VuIiwiZXhwIjoiMjEyMy0wNC0wN1QwMDo0NjowNi4yODY1ODY5NzRaIiwiaWF0IjoiMjAyNC0wNC0zMFQwMDo0NjowNi4yODY1ODg2NThaIiwic2NvcGVzIjpbImlkZW50aXR5LmNsaWVudC5wcm9maWxlIiwiaWRlbnRpdHkuY2xpZW50LnByb2ZpbGUudXBkYXRlIiwiYWNnIl0sImF0dHJzIjp7ImFjZ0RldmljZUlEIjoiNzg3MjcwYjktNWY3ZC00YThjLTliMjUtNDQxYTc3YjUxYmMwIiwiY2x1c3RlciI6ImJldGEiLCJjbHVzdGVyVVJMIjoiaHR0cHM6Ly9iZXRhLmFnbmkuYXJpc3RhLmlvIiwidG9rZW5OYW1lIjoiQ2xvdWQgR2F0ZXdheS0xIn19.yyMCJkgfwCGqdxj9zX-k7EksoqSjuj4ULXDaI56EtFUbl6I7Jbo0ENGo5ZlvHwx-1TLy6tRVTpqQ-hP7VljnOA
+ no shutdown
+!
+match-list input prefix-ipv4 DVR_PREFIXES
+  match prefix-ipv4 192.168.224.0/24
+match-list input prefix-ipv4 CAMERA_PREFIXES
+  match prefix-ipv4 172.16.1.0/24
+match-list input prefix-ipv4 INTRANET_PREFIXES
+  match prefix-ipv4 192.168.224.0/24
+
+!
+router segment-security
+  vrf default
+      segment SEGMENT_CAMERA
+        definition
+            match prefix-ipv4 CAMERA_PREFIXES
+      !
+      segment SEGMENT_DVR
+        definition
+            match prefix-ipv4 DVR_PREFIXES
+      segment SEGMENT_INTRANET
+        definition
+            match prefix-ipv4 INTRANET_PREFIXES
+      !
+!
+router segment-security
+  vrf default
+      segment SEGMENT_CAMERA
+        policies
+            from SEGMENT_DVR policy policy-forward-all
+      !
+      segment SEGMENT_DVR
+        policies
+            from SEGMENT_DVR policy policy-forward-all
+      segment SEGMENT_INTRANET
+        policies
+            from SEGMENT_INTRANET policy policy-forward-all
+!
+router segment-security
+    no segment policy policy-drop-all default
+!
+router segment-security
+    vrf default
+        segment SEGMENT_CAMERA
+            policies
+                from SEGMENT_CAMERA policy policy-drop-all
+!
+router segment-security
+    no shutdown
 !
 
 ```

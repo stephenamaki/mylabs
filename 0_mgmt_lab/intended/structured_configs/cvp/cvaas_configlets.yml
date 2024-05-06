@@ -8,24 +8,49 @@ cvp_configlets:
     multi-agent\n!\nlogging monitor debugging\n!\nhostname 720dp-swa\nip name-server
     vrf default 1.1.1.1\nip name-server vrf MGMT 1.1.1.1\nip name-server vrf default
     8.8.8.8\nip name-server vrf MGMT 8.8.8.8\n!\nntp server time.google.com prefer
-    iburst\n!\nsflow sample 500\nsflow polling-interval 5\nsflow destination 127.0.0.1\nsflow
-    run\n!\naaa authorization exec default local\n!\nno enable password\nno aaa root\n!\nusername
+    iburst\n!\nradius-server dynamic-authorization tls ssl-profile agni-server\nradius-server
+    host radsec.beta.agni.arista.io tls ssl-profile agni-server\n!\nsflow sample 500\nsflow
+    polling-interval 5\nsflow destination 127.0.0.1\nsflow run\n!\naaa group server
+    radius agni-server-group\n   server radsec.beta.agni.arista.io tls\n!\naaa authentication
+    dot1x default group radius\naaa authorization exec default local\naaa accounting
+    dot1x default start-stop group radius\n!\nno enable password\nno aaa root\n!\nusername
     admin privilege 15 role network-admin nopassword\nusername ansible privilege 15
     role network-admin secret sha512 $6$7u4j1rkb3VELgcZE$EJt2Qff8kd/TapRoci0XaIZsL4tFzgq1YZBLD9c6f/knXzvcYY0NcMKndZeCv0T268knGKhOEwZAxqKjlMm920\n!\nvlan
-    224\n   name Public_Internet\n!\nvrf instance MGMT\n!\ninterface Management1\n
-    \  description oob_management\n   no shutdown\n   vrf MGMT\n   ip address 192.168.224.107/24\n!\ninterface
-    Vlan224\n   description Public_Internet\n   no shutdown\n   ip address 192.168.224.108/24\n!\nip
-    routing\nip routing vrf MGMT\n!\nip route 0.0.0.0/0 192.168.224.1\nip route vrf
-    MGMT 0.0.0.0/0 192.168.224.1\n!\nmanagement api http-commands\n   protocol https\n
+    224\n   name Public_Internet\n!\nvrf instance MGMT\n!\ninterface Ethernet3\n   switchport\n
+    \  dot1x pae authenticator\n   dot1x port-control auto\n   dot1x host-mode multi-host
+    authenticated\n!\ninterface Management1\n   description oob_management\n   no
+    shutdown\n   vrf MGMT\n   ip address 192.168.224.107/24\n!\ninterface Vlan224\n
+    \  description Public_Internet\n   no shutdown\n   ip address 192.168.224.108/24\n!\nip
+    routing\nip routing vrf MGMT\n!\nip route 0.0.0.0/0 192.168.224.1\nip route 172.16.1.0/24
+    192.168.224.104\nip route vrf MGMT 0.0.0.0/0 192.168.224.1\nip route vrf MGMT
+    172.16.1.0/24 192.168.224.104\n!\nmanagement api http-commands\n   protocol https\n
     \  no shutdown\n   !\n   vrf default\n      no shutdown\n   !\n   vrf MGMT\n      no
-    shutdown\n!\n!\ninterface Ethernet1-2\n  description Arista_AP\n  !poe priority
-    critical\n  poe reboot action maintain\n  poe link down action maintain\n  poe
-    shutdown action power-off\n  !poe limit 30.00 watts\n!\ninterface Ethernet1-23\n
-    \ profile PORT_PROFILE\n!\ninterface Ethernet24\n  description Public_Internet\n
-    \ switchport mode access\n  switchport access vlan 224\n!\nmonitor connectivity\n
-    \ no shutdown\n  !\n  host google_dns\n      ip 8.8.8.8\n      icmp echo size
-    36\n  !\n  host cvaas\n      url https://www.cv-staging.corp.arista.io\n      icmp
-    echo size 36\n!\n\n!\nend\n"
+    shutdown\n!\nmanagement security\n   ssl profile agni-server\n      trust certificate
+    radsec_ca_certificate.pem\n      certificate 720dp-swa.pem key 720dp-swa.key\n!\ndot1x
+    system-auth-control\ndot1x protocol lldp bypass\ndot1x dynamic-authorization\n!\n!\ninterface
+    Ethernet1-2\n  description Arista_AP\n  !poe priority critical\n  poe reboot action
+    maintain\n  poe link down action maintain\n  poe shutdown action power-off\n  !poe
+    limit 30.00 watts\n!\ninterface Ethernet1-23\n  profile PORT_PROFILE\n!\ninterface
+    Ethernet24\n  description Public_Internet\n  switchport mode access\n  switchport
+    access vlan 224\n!\nmonitor connectivity\n  no shutdown\n  !\n  host google_dns\n
+    \     ip 8.8.8.8\n      icmp echo size 36\n  !\n  host cvaas\n      url https://www.cv-staging.corp.arista.io\n
+    \     icmp echo size 36\n!\ndaemon AristaCloudGateway\n exec /usr/bin/acg \n option
+    AGNI_API_TOKEN value eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJRCI6IkU2NTA5NGJiYi1kZDBiLTQ2OWYtOTMyMS1mMTkzYjE3M2U2YTciLCJ0b2tlbklEIjoiRURDT08zVUpNMDYyVVM3Mk9BMEVFRyIsImlzcyI6IkFHTkkiLCJhdWQiOiJBQ0cgRGV2aWNlIFRva2VuIiwiZXhwIjoiMjEyMy0wNC0wN1QwMDo0NjowNi4yODY1ODY5NzRaIiwiaWF0IjoiMjAyNC0wNC0zMFQwMDo0NjowNi4yODY1ODg2NThaIiwic2NvcGVzIjpbImlkZW50aXR5LmNsaWVudC5wcm9maWxlIiwiaWRlbnRpdHkuY2xpZW50LnByb2ZpbGUudXBkYXRlIiwiYWNnIl0sImF0dHJzIjp7ImFjZ0RldmljZUlEIjoiNzg3MjcwYjktNWY3ZC00YThjLTliMjUtNDQxYTc3YjUxYmMwIiwiY2x1c3RlciI6ImJldGEiLCJjbHVzdGVyVVJMIjoiaHR0cHM6Ly9iZXRhLmFnbmkuYXJpc3RhLmlvIiwidG9rZW5OYW1lIjoiQ2xvdWQgR2F0ZXdheS0xIn19.yyMCJkgfwCGqdxj9zX-k7EksoqSjuj4ULXDaI56EtFUbl6I7Jbo0ENGo5ZlvHwx-1TLy6tRVTpqQ-hP7VljnOA\n
+    no shutdown\n!\nmatch-list input prefix-ipv4 DVR_PREFIXES\n  match prefix-ipv4
+    192.168.224.0/24\nmatch-list input prefix-ipv4 CAMERA_PREFIXES\n  match prefix-ipv4
+    172.16.1.0/24\nmatch-list input prefix-ipv4 INTRANET_PREFIXES\n  match prefix-ipv4
+    192.168.224.0/24\n\n!\nrouter segment-security\n  vrf default\n      segment SEGMENT_CAMERA\n
+    \       definition\n            match prefix-ipv4 CAMERA_PREFIXES\n      !\n      segment
+    SEGMENT_DVR\n        definition\n            match prefix-ipv4 DVR_PREFIXES\n
+    \     segment SEGMENT_INTRANET\n        definition\n            match prefix-ipv4
+    INTRANET_PREFIXES\n      !\n!\nrouter segment-security\n  vrf default\n      segment
+    SEGMENT_CAMERA\n        policies\n            from SEGMENT_DVR policy policy-forward-all\n
+    \     !\n      segment SEGMENT_DVR\n        policies\n            from SEGMENT_DVR
+    policy policy-forward-all\n      segment SEGMENT_INTRANET\n        policies\n
+    \           from SEGMENT_INTRANET policy policy-forward-all\n!\nrouter segment-security\n
+    \   no segment policy policy-drop-all default\n!\nrouter segment-security\n    vrf
+    default\n        segment SEGMENT_CAMERA\n            policies\n                from
+    SEGMENT_CAMERA policy policy-drop-all\n!\nrouter segment-security\n    no shutdown\n!\n\n!\nend\n"
   CONFIGS_gwy-rtr: "!RANCID-CONTENT-TYPE: arista\n!\ndaemon TerminAttr\n   exec /usr/bin/TerminAttr
     -cvaddr=apiserver.cv-staging.corp.arista.io:443 -cvauth=token-secure,/tmp/cv-onboarding-token
     -cvvrf=MGMT -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata

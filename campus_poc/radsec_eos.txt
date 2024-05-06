@@ -1,16 +1,17 @@
 ansible
 
 security pki key generate rsa 2048 720dp-swa.key
-
 security pki certificate generate signing-request key 720dp-swa.key
 
 
 720dp-swa mac
 2c:dd:e9:ff:a3:b5
 
-scp 720dp-swa.pem radsec_ca_certificate.pem ansible@192.168.224.202:/mnt/flash
+scp 720dp-swa.pem radsec_ca_certificate.pem ansible@192.168.224.108:/mnt/flash
 
+--------
 
+on the switch: 
 
 copy flash:720dp-swa.pem certificate:
 copy flash:radsec_ca_certificate.pem certificate:
@@ -20,10 +21,7 @@ management security
     ssl profile agni-server
     certificate 720dp-swa.pem key 720dp-swa.key
     trust certificate radsec_ca_certificate.pem
-
-show management security ssl profile agni-server
-
-
+!
 !
 aaa group server radius agni-server-group
    server radsec.beta.agni.arista.io tls
@@ -31,22 +29,37 @@ aaa group server radius agni-server-group
 aaa authentication dot1x default group radius
 aaa accounting dot1x default start-stop group radius
 !
-
----------
-
-openssl pkcs12 -in 720dp-swa.p12 -out 720dp-swa.crt -clcerts -nokeys
-openssl pkcs12 -in 720dp-swa.p12 -out 720dp-swa.key -nocerts -nodes
-
-
-===================================
-
 radius-server host radsec.beta.agni.arista.io tls ssl-profile agni-server
 !
-aaa group server radius AGNI
-   server radsec.beta.agni.arista.io tls
-!
-aaa authentication dot1x default group AGNI
-aaa accounting dot1x default start-stop group AGNI
 
- 
+
+show management security ssl profile agni-server
+sh management security ssl certificate 720dp-swa.pem 
+dir certificate:
+dir sslkey:
+
+===================================
+wired TLS
+
+
+show dot1x radius
+
+radius-server dynamic-authorization port 3799
+radius-server dynamic-authorization tls ssl-profile agni-server
+
+
+dot1x system-auth-control
+dot1x protocol lldp bypass
+dot1x dynamic-authorization
+
+
+interface Ethernet3
+    dot1x pae authenticator
+    dot1x port-control auto
+    dot1x host-mode multi-host authenticated
+
+
+show dot1x interface ethernet3
+
+===================================
 

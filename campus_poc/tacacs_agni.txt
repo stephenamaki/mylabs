@@ -1,0 +1,39 @@
+
+
+
+copy flash:AristaCloudGateway-1.0.1-1.swix extension:
+extension AristaCloudGateway-1.0.1-1.swix
+show extensions 
+copy installed-extension boot-extension
+
+
+daemon AristaCloudGateway
+    exec /usr/bin/acg
+    option AGNI_API_TOKEN value eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdJRCI6IkU2NTA5NGJiYi1kZDBiLTQ2OWYtOTMyMS1mMTkzYjE3M2U2YTciLCJ0b2tlbklEIjoiRURDT08zVUpNMDYyVVM3Mk9BMEVFRyIsImlzcyI6IkFHTkkiLCJhdWQiOiJBQ0cgRGV2aWNlIFRva2VuIiwiZXhwIjoiMjEyMy0wNC0wN1QwMDo0NjowNi4yODY1ODY5NzRaIiwiaWF0IjoiMjAyNC0wNC0zMFQwMDo0NjowNi4yODY1ODg2NThaIiwic2NvcGVzIjpbImlkZW50aXR5LmNsaWVudC5wcm9maWxlIiwiaWRlbnRpdHkuY2xpZW50LnByb2ZpbGUudXBkYXRlIiwiYWNnIl0sImF0dHJzIjp7ImFjZ0RldmljZUlEIjoiNzg3MjcwYjktNWY3ZC00YThjLTliMjUtNDQxYTc3YjUxYmMwIiwiY2x1c3RlciI6ImJldGEiLCJjbHVzdGVyVVJMIjoiaHR0cHM6Ly9iZXRhLmFnbmkuYXJpc3RhLmlvIiwidG9rZW5OYW1lIjoiQ2xvdWQgR2F0ZXdheS0xIn19.yyMCJkgfwCGqdxj9zX-k7EksoqSjuj4ULXDaI56EtFUbl6I7Jbo0ENGo5ZlvHwx-1TLy6tRVTpqQ-hP7VljnOA
+    no shutdown
+
+trace monitor acg
+show daemon AristaCloudGateway 
+
+------
+
+beta.agni.arista.io
+
+conf terminal
+tacacs-server policy unknown-mandatory-attribute ignore
+tacacs-server host 192.168.224.108 key Haven30043
+
+aaa group server tacacs+ agni-tacacs
+    server 192.168.224.108
+
+
+aaa authentication login default group agni-tacacs local
+aaa authorization exec default group agni-tacacs local
+aaa authorization commands all default group agni-tacacs local
+aaa accounting commands all default start-stop group agni-tacacs
+
+
+------
+tacacs-server host 192.168.224.108 vrf MGMT key Haven30043
+aaa group server tacacs+ agni-tacacs
+   server 192.168.224.108 vrf MGMT

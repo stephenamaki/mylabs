@@ -1,0 +1,54 @@
+!
+match-list input prefix-ipv4 DVR_PREFIXES
+  match prefix-ipv4 192.168.224.0/24
+match-list input prefix-ipv6 DVR_PREFIXES
+  match prefix-ipv6 2001:192:168:224::/64
+match-list input prefix-ipv4 CAMERA_PREFIXES
+  match prefix-ipv4 172.16.1.0/24
+match-list input prefix-ipv6 CAMERA_PREFIXES
+  match prefix-ipv6 2001:172:16:1::/64
+!
+router segment-security
+  vrf default
+      segment SEGMENT_CAMERA
+        definition
+            match prefix-ipv4 CAMERA_PREFIXES
+            match prefix-ipv6 CAMERA_PREFIXES
+      !
+      segment SEGMENT_DVR
+        definition
+            match prefix-ipv4 DVR_PREFIXES
+            match prefix-ipv6 DVR_PREFIXES
+!
+router segment-security
+  vrf default
+      segment SEGMENT_CAMERA
+        policies
+            from SEGMENT_DVR policy policy-forward-all
+      !
+      segment SEGMENT_DVR
+        policies
+            from SEGMENT_DVR policy policy-forward-all
+!
+router segment-security
+    no segment policy policy-drop-all default
+!
+router segment-security
+    vrf default
+        segment SEGMENT_CAMERA
+            policies
+                from SEGMENT_CAMERA policy policy-drop-all
+!
+router segment-security
+    no shutdown
+!
+
+
+
+show segment-security
+sh match-list prefix-ipv4
+sh match-list prefix-ipv6
+show segment-security hardware summary
+show segment-security hardware detail
+show segment-security hardware routes [vrf<vrf-name>][segment<seg-name>]
+show segment-security hardware routes 

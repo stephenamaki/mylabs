@@ -35,7 +35,10 @@ local_users:
     privilege: 15
     role: network-admin
     no_password: true
-
+  # - name: admin2
+  #   privilege: 15
+  #   role: network-admin
+  #   no_password: true
 
 ip_name_servers:
   - ip_address: 1.1.1.1
