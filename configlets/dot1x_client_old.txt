@@ -1,0 +1,88 @@
+!
+tacacs-server timeout 3
+tacacs-server directed-request
+tacacs server ISE_AMERICAS_LAF
+ address ipv4 10.94.131.4
+ key ansible
+ timeout 3
+ single-connection
+tacacs server ISE_AMERICAS_MOB
+ address ipv4 10.88.10.10
+ key ansible
+ timeout 3
+ single-connection
+!
+radius-server attribute nas-port format c
+radius-server dead-criteria tries 3
+radius-server retry method reorder
+radius-server backoff exponential
+radius-server retransmit 2
+radius-server timeout 3
+radius-server deadtime 4
+!
+radius server ISE_AMERICAS_MOB
+ address ipv4 10.88.10.10 auth-port 1812 acct-port 1813
+ automate-tester username keepalive idle-time 2
+ key ansible
+!
+radius server ISE_AMERICAS_LAF
+ address ipv4 10.94.131.4 auth-port 1812 acct-port 1813
+ automate-tester username keepalive idle-time 2
+ key ansible
+!
+aaa new-model   (use ansible as password for tacacs and radius)
+!
+!
+aaa group server radius RADIUS_ISE-AMERICAS
+ server name ISE_AMERICAS_MOB
+ server name ISE_AMERICAS_LAF
+ load-balance method least-outstanding batch-size 5
+!
+aaa group server tacacs+ TACACS_ISE-AMERICAS
+ server name ISE_AMERICAS_MOB
+ server name ISE_AMERICAS_LAF
+!
+aaa authentication attempts login 5
+aaa authentication fail-message ^CCCCC
+Sorry, try it again! ^C
+aaa authentication login default group TACACS_ISE-AMERICAS local enable
+aaa authentication enable default group TACACS_ISE-AMERICAS enable
+aaa authentication ppp default local
+aaa authentication dot1x default group RADIUS_ISE-AMERICAS
+aaa authorization config-commands
+aaa authorization exec default group TACACS_ISE-AMERICAS local none
+aaa authorization commands 0 default group TACACS_ISE-AMERICAS local none
+aaa authorization commands 15 default group TACACS_ISE-AMERICAS local none
+aaa authorization network default group RADIUS_ISE-AMERICAS
+
+dot1x system-auth-control
+dot1x guest-vlan supplicant
+dot1x critical eapol
+
+interface GigabitEthernet1/0/1
+ description dot1x
+ network-policy 300
+ switchport access vlan 100
+ switchport mode access
+ ip device tracking maximum 65535
+ no logging event link-status
+ priority-queue out
+ no cdp enable
+ authentication event fail action authorize vlan 505
+ authentication event server dead action authorize vlan 100
+ authentication event no-response action authorize vlan 505
+ authentication event server alive action reinitialize
+ authentication host-mode multi-domain
+ authentication port-control auto
+ authentication violation protect
+ mab
+ mls qos trust cos
+ dot1x pae authenticator
+ dot1x timeout quiet-period 2
+ dot1x timeout server-timeout 40
+ dot1x timeout tx-period 2
+ storm-control broadcast level 20.00
+ storm-control multicast level 20.00
+ spanning-tree portfast edge
+!
+

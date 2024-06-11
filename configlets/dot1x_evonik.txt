@@ -1,0 +1,123 @@
+Dont have: 
+tacacs-server directed-request
+radius-server attribute nas-port format c
+radius-server dead-criteria tries 3
+radius-server retry method reorder
+radius-server backoff exponential
+!
+radius server ISE_AMERICAS_MOB
+ automate-tester username keepalive idle-time 2
+!
+
+aaa authentication attempts login 5
+aaa authentication fail-message ^CCCCC
+Sorry, try it again! ^C
+aaa authentication login default group TACACS_ISE-AMERICAS local enable
+
+
+aaa authentication ppp default local
+aaa authorization network default group RADIUS_ISE-AMERICAS
+
+dot1x guest-vlan supplicant
+dot1x critical eapol
+
+
+-------
+!
+tacacs-server timeout 3
+tacacs-server policy unknown-mandatory-attribute ignore
+tacacs-server host 10.94.131.4 key ansible
+tacacs-server host 10.94.131.4 timeout 3 
+tacacs-server host 10.94.131.4 single-connection
+!
+tacacs-server host 10.88.10.10 key ansible
+tacacs-server host 10.88.10.10 timeout 3 
+tacacs-server host 10.88.10.10 single-connection
+!
+radius-server deadtime 4
+radius-server timeout 3
+radius-server deadtime 2
+radius-server retransmit 2
+!
+radius-server host 10.94.131.4 auth-port 1812 acct-port 1813
+radius-server host 10.94.131.4 key ansible 
+!
+radius-server host 10.88.10.10 auth-port 1812 acct-port 1813
+radius-server host 10.88.10.10 key ansible 
+!
+aaa group server radius RADIUS_ISE-AMERICAS
+   server 10.94.131.4
+   server 10.88.10.10
+aaa group server tacacs+ TACACS_ISE-AMERICAS
+   server 10.94.131.4
+   server 10.88.10.10
+!
+!
+aaa authentication policy on-success log 
+aaa authentication policy on-failure log 
+aaa authentication policy lockout failure 5
+!
+aaa authentication login default group TACACS_ISE-AMERICAS local
+aaa authentication enable default group TACACS_ISE-AMERICAS local
+aaa authentication dot1x default group TACACS_ISE-AMERICAS 
+!
+aaa authorization config-commands 
+aaa authorization exec default group TACACS_ISE-AMERICAS local none
+aaa authorization commands 0 default group TACACS_ISE-AMERICAS local none 
+aaa authorization commands 15 default group TACACS_ISE-AMERICAS local none 
+!
+aaa accounting commands all default start-stop group TACACS_ISE-AMERICAS  
+aaa accounting dot1x default start-stop group TACACS_ISE-AMERICAS  
+aaa accounting exec default start-stop group TACACS_ISE-AMERICAS  
+!
+dot1x system-auth-control
+dot1x protocol lldp bypass
+dot1x dynamic-authorization
+!
+
+----------
+
+interface EthernetXX 
+    description dot1x
+    switchport access vlan 100
+    switchport mode access
+    spanning-tree portfast edge
+    storm-control broadcast level 20.00
+    storm-control multicast level 20.00
+    dot1x pae authenticator
+    dot1x timeout quiet-period 2
+    dot1x timeout tx-period 2
+    dot1x timeout idle-host 40 seconds
+    dot1x authentication failure action traffic allow vlan 505
+    dot1x aaa unresponsive action traffic allow vlan 505
+    dot1x host-mode multi-host 
+    dot1x port-control auto 
+    dot1x mac based authentication 
+
+    
+    dot1x eapol authentication failure fallback mba 
+    dot1x reauthentication
+    dot1x unauthorized access vlan membership egress 
+    dot1x timeout reauth-timeout-ignore always
+
+   
+
+-------
+
+dont have: 
+
+interface GigabitEthernet1/0/1
+ network-policy 300
+ ip device tracking maximum 65535
+ no logging event link-status
+ priority-queue out
+ mls qos trust cos
+ dot1x timeout server-timeout 40
+
+ authentication event server dead action authorize vlan 100
+ authentication event server alive action reinitialize
+ authentication violation protect
+!
+
+
+--------

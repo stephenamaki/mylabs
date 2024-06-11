@@ -1,0 +1,35 @@
+####
+Campus POC
+host pki451
+    option dhcp-client-identifier 2c:dd:e9:ff:d4:db; 
+    fixed-address 172.28.137.129;
+    option routers 172.28.28.1; 
+    option subnet-mask 255.255.240.0; 
+    option host-name "pki451";
+    option domain-name-servers 172.22.60.20; 
+    option ntp-servers 172.22.60.22;
+    option bootfile-name "https://ww.cv-prod-us-central1-c.arista.io/ztp/bootstrap";
+
+
+dhcp server
+   lease time ipv4 1 days 0 hours 0 minutes
+   dns domain name ipv4 arista.com
+   dns server ipv4 8.8.8.8 4.2.2.2
+   !
+   host wirelessAP
+   fixed-address 172.28.137.129;
+    
+
+dhcp server
+   lease time ipv4 1 days 0 hours 0 minutes
+   dns domain name ipv4 arista.com
+   dns server ipv4 8.8.8.8 4.2.2.2
+   !
+   host wirelessAP
+   
+   subnet 172.16.1.0/24
+      range 172.16.1.165 172.16.1.245
+      default-gateway 172.16.1.1
+      tftp server file tftp://192.168.224.105/bootstrap.py
+interface Ethernet2
+   dhcp server ipv4

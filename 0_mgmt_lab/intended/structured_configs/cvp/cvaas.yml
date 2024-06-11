@@ -1,9 +1,5 @@
 ---
 cvp_devices:
-  - fqdn: 720dp-swa
-    parentContainerName: HARDWARE
-    configlets:
-      - CONFIGS_720dp-swa
   - fqdn: gwy-rtr
     parentContainerName: EVE_NG
     configlets:
@@ -14,8 +10,6 @@ cvp_devices:
       - CONFIGS_switch-mgmt
 cvp_containers:
   EVE_NG:
-    parentContainerName: LAB_MGMT
-  HARDWARE:
     parentContainerName: LAB_MGMT
   LAB:
     parentContainerName: Tenant

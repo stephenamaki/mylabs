@@ -1,0 +1,17 @@
+dot1x system-auth-control
+mac based authentication delay <0-300> seconds
+
+int et1
+switchport mode access
+dot1x pae authenticator
+dot1x port-control force-authorized
+dot1x port-control force-unauthorized	
+dot1x port-control auto
+speed forced 1000full
+dot1x pae authenticator
+dot1x port-control auto
+dot1x mac based authentication
+dot1x reauthentication
+dot1x reauthorization request limit 6
+dot1x authentication failure action traffic allow vlan 505
+

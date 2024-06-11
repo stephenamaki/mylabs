@@ -1,0 +1,47 @@
+!
+username admin privilege 15 role network-admin nopassword
+username ansible privilege 15 role network-admin secret sha512 $6$7u4j1rkb3VELgcZE$EJt2Qff8kd/TapRoci0XaIZsL4tFzgq1YZBLD9c6f/knXzvcYY0NcMKndZeCv0T268knGKhOEwZAxqKjlMm920
+!
+!
+daemon TerminAttr
+   exec /usr/bin/TerminAttr -cvaddr=apiserver.cv-staging.corp.arista.io:443 -cvauth=token-secure,/tmp/cv-onboarding-token -cvvrf=MGMT -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -taillogs
+   no shutdown
+!
+!
+service routing protocols model multi-agent
+!
+hostname router-1
+ip name-server vrf MGMT 1.1.1.1
+ip name-server vrf MGMT 8.8.8.8
+!
+ntp server vrf MGMT time.google.com prefer iburst
+!
+sflow sample 1000
+sflow polling-interval 20
+sflow destination 127.0.0.1
+sflow source-interface Loopback0
+sflow run
+!
+spanning-tree mode rapid-pvst
+spanning-tree vlan-id 1-4094 priority 61440
+!
+vrf instance MGMT
+!
+interface Management1
+   description oob_management
+   no shutdown
+   vrf MGMT
+   ip address 172.16.1.101/24
+!
+ip route vrf MGMT 0.0.0.0/0 172.16.1.1
+!
+management api http-commands
+   protocol https
+   no shutdown
+   !
+   vrf MGMT
+      no shutdown
+!
+end
+copy running-config startup-config
+
